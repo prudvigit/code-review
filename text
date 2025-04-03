@@ -1,0 +1,58 @@
+ DATA: lv_tzone          TYPE sy-zonlo VALUE 'UTC+8',
+          lv_ap_server_path TYPE string.
+
+    DATA: lv_xml          TYPE string,
+          lv_encoded_xml  TYPE xstring,
+          lv_encoded_sxml TYPE string,
+          lo_conv_out     TYPE REF TO cl_abap_conv_out_ce,
+          lo_conv_in      TYPE REF TO cl_abap_conv_in_ce.
+
+    IF is_output_format-file_prefix = 'ZCUST_PORTAL'.
+
+      CONVERT DATE sy-datlo TIME sy-timlo
+              INTO TIME STAMP DATA(lv_timestamp) TIME ZONE lv_tzone.
+
+      lv_ap_server_path =     |/FSI/| &&
+                                    |{ sy-sysid }| &&
+                                    |/CUSTPORTAL/PODPricelist/| &&
+                                    |{ lv_timestamp }| && |.xml|. ".txt
+
+      OPEN DATASET lv_ap_server_path FOR OUTPUT IN TEXT MODE
+                                     ENCODING UTF-8."DEFAULT.
+      IF sy-subrc IS INITIAL.
+
+
+        FIELD-SYMBOLS: <lt_result> TYPE ANY TABLE.
+
+        ASSIGN ir_result->* TO <lt_result>.
+
+        DATA: lt_xml_data   TYPE TABLE OF string,
+              lv_xml_output TYPE string.
+
+        CALL TRANSFORMATION id
+          SOURCE data = <lt_result>
+          RESULT XML lv_xml_output.
+
+
+*Begin of Insert BT#517789,TR#S5DK908580
+        DATA: lv_xml_output2 TYPE string,
+              lt_xml_output2 TYPE TABLE OF string,
+              lv_xml16       TYPE xstring,
+              lv_utf8        TYPE string.
+        SPLIT lv_xml_output AT '<' INTO TABLE lt_xml_output2.
+        DELETE  lt_xml_output2 INDEX 1.
+        LOOP AT lt_xml_output2 INTO lv_xml_output2.
+          IF lv_xml_output2 CS 'utf-16'.
+            REPLACE 'utf-16' WITH 'utf-8' INTO lv_xml_output2.
+          ENDIF.
+          CONCATENATE '<' lv_xml_output2 INTO lv_xml_output2.
+          TRANSFER lv_xml_output2 TO lv_ap_server_path.
+        ENDLOOP.
+*End of Insert BT#517789,TR#S5DK908580
+
+        CLOSE DATASET lv_ap_server_path.
+
+      ENDIF.
+
+
+    ENDIF.
