@@ -1,28 +1,22 @@
-1. Loop Through Input Data & Extract Key Fields
-Iterates over each row in the dynamically assigned internal table <lt_result>.
-Extracts Material Number (MATNR), Sales Organization (VKORG), and Customer Number (KUNNR) from each row.
-Stores them in a structured table lt_data for later use in database queries.
+1. Prepare Input Data
+Creates lt_input_data by transforming lt_entity, ensuring customer numbers are in internal format (leading zeros added via ALPHA = IN).
 
-2. Fetch Configuration Value (FSI Plant)
-Calls a utility method to retrieve a configuration value (likely a plant code) from table TVARVC.
-Stores the value in lv_fsi_plant for filtering in subsequent DB queries.
+2. Fetch Customer Sales Data
+Retrieves sales organization (vkorg) for each customer from KNVV.
+Fetches plants (werks) linked to sales orgs from TVKWZ, filtered by distribution channel (lc_10).
 
-3. Database Queries to Enrich Data
-a. Fetch Planning Strategy Group (MARC)
-Retrieves the Planning Strategy Group (STRGR) for each material in lt_data from table MARC.
-Filters by the configured FSI plant (lv_fsi_plant).
-b. Fetch Sales Data (MVKE)
-Fetches Minimum Order Quantity (AUMNG) for each material and sales org from MVKE.
-Filters by distribution channel (lc_10, likely hardcoded to '10').
-c. Fetch Customer-Material Info (KNMT)
-Retrieves Customer-Specific Material Number (KDMAT) from KNMT.
-Filters by sales org, distribution channel, customer, and material.
+3. Process Each Input Record
+Case 1: No Customer Specified
+Logic: If no customer is given, use the provided plant directly.
+Result: Adds the plant to lt_werks as the only relevant plant.
+Case 2-4: Customer Specified
+Subcase 2: Specific Plant Provided (Valid)
+Logic: If the provided plant is valid for the customer, use only that plant.
 
-4. Update Original Table with Enriched Data
-Loops through the original table again to update it with the fetched data.
-a. Update Planning Strategy Group (STRGR)
-Maps the Planning Strategy Group from MARC to a field (STRGR1) in the original table.
-b. Update Minimum Order Quantity (AUMNG)
-Updates the Minimum Order Quantity from MVKE.
-c. Update Customer Material Number (KDMAT)
-Updates the Customer-Specific Material Number from KNMT.
+Result: Filters lt_cust_plants to include only the specified plant.
+Subcase 3: Specific Plant Provided (Invalid)
+Sets lv_no_plant = abap_true if the plant isn’t associated with the customer.
+
+Subcase 4: No Plant Provided
+Logic: If no plant is specified, use all plants linked to the customer.
+**Result: Adds all customer-associated plants to lt_werks`.
