@@ -1,0 +1,36 @@
+
+1. Variable Declarations
+lv_tzone defines the timezone used for timestamp generation.
+lv_ap_server_path will store the full file path where the XML is saved.
+
+2. Check if File Prefix is 'ZCUST_PORTAL'
+The code executes only if the file prefix matches 'ZCUST_PORTAL'.
+
+3. Generate Timestamp for Filename
+Converts the current local date (sy-datlo) and time (sy-timlo) into a timestamp (lv_timestamp) using the specified timezone (UTC+8).
+
+4. Construct File Path
+Builds the file path in the format:
+/FSI/<SystemID>/CUSTPORTAL/PODPricelist/<Timestamp>.xml
+Example: /FSI/DEV01/CUSTPORTAL/PODPricelist/20240403123000.xml
+
+5. Open File for Writing (UTF-8 Encoding)
+Opens (or creates) the file in text mode with UTF-8 encoding.
+If sy-subrc = 0, the file was successfully opened.
+
+6. Convert Internal Table to XML
+ir_result is a reference to an internal table (passed as input).
+Assigns it to a field symbol <lt_result> for dynamic access.
+Uses the ID transformation (simple XML serialization) to convert the internal table into an XML string (lv_xml_output).
+
+7. Fix UTF-16 to UTF-8 Encoding (Bug Fix)
+Splits the XML string at < to separate the XML declaration (<?xml ... ?>) from the content.
+The first entry (empty) is deleted.
+Checks if the XML declaration contains utf-16 (default in some ABAP versions).
+Replaces it with utf-8 to ensure correct encoding.
+Reconstructs the XML by adding < back.
+Writes each line to the file.
+
+8. Close the File
+CLOSE DATASET lv_ap_server_path.
+Ensures the file is properly closed after writing.
