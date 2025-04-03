@@ -1,123 +1,76 @@
-   LOOP AT <lt_result> ASSIGNING FIELD-SYMBOL(<ls_result>).
+    lt_input_data = VALUE #( FOR ls_entity IN lt_entity
+                               (  material = ls_entity-material
+                                  plant    = ls_entity-plant
+                                  storeLoc = ls_entity-storeLoc
+                                  customer = |{ ls_entity-customer ALPHA = IN }| ) ).
+        SELECT kunnr
+              ,vkorg
+               FROM knvv
+               INTO TABLE @DATA(lt_knvv)
+               FOR ALL ENTRIES IN @lt_input_data
+               WHERE kunnr EQ @lt_input_data-customer.
+        SELECT vkorg
+              ,vtweg
+              ,werks
+               FROM tvkwz
+               INTO TABLE @DATA(lt_tvkwz)
+               FOR ALL ENTRIES IN @lt_knvv
+               WHERE vkorg EQ @lt_knvv-vkorg AND
+                     vtweg EQ @lc_10.
 
-* Material Number
-      ASSIGN COMPONENT 'MATNR' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_matnr_value>).
-      IF sy-subrc IS INITIAL.
-        ls_data-matnr = <lv_matnr_value>.
-      ENDIF.
 
-* Sales Organization
-      ASSIGN COMPONENT 'VKORG' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_vkorg_value>).
-      IF sy-subrc IS INITIAL.
-        ls_data-vkorg = <lv_vkorg_value>.
-      ENDIF.
+        LOOP AT lt_input_data INTO DATA(ls_input_data).
 
-* Customer number
-      ASSIGN COMPONENT 'KUNNR' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_kunnr_value>).
-      IF sy-subrc IS INITIAL.
-        ls_data-vkorg = <lv_vkorg_value>.
-      ENDIF.
+          IF ls_input_data-customer IS INITIAL.
+* Case1: Plant from customer - No customer : Plant from parameter  G --> Select stock for G
+            DATA(ls_werk) = VALUE lty_range_plat( sign   = if_fsbp_const_range=>sign_include
+                                                  option = if_fsbp_const_range=>option_equal
+                                                  low    = ls_input_data-plant ).
+            APPEND ls_werk TO lt_werks.
+          ELSE.
+            DATA(lt_cust_sales_org) = VALUE ltt_vkorg( FOR ls_knvv IN lt_knvv
+                                         WHERE ( kunnr = ls_input_data-customer )
+                                         ( vkorg = ls_knvv-vkorg ) ).
 
-      APPEND ls_data TO lt_data.
+            DATA(lt_cust_plants) = VALUE ltt_werk( FOR ls_cust_sales_org IN lt_cust_sales_org
+                                                   FOR ls_tvkwz IN lt_tvkwz
+                                                   WHERE ( vkorg = ls_cust_sales_org-vkorg )
+                                                           ( vkorg = ls_cust_sales_org-vkorg
+                                                             werks = ls_tvkwz-werks ) ).
+            IF NOT ls_input_data-plant IS INITIAL.
 
-    ENDLOOP.
+              TRY .
 
-*Get Pricelist FSI plant
-    CALL METHOD zcl_ca_utilities=>get_tvarvc_value(
-      EXPORTING
-        iv_name   = lc_fsi_plant
-      RECEIVING
-        rt_tvarvc = lt_fsi_tvarvc ).
-    IF sy-subrc = 0 AND lines( lt_fsi_tvarvc ) > 0.
-      lv_fsi_plant = VALUE #( lt_fsi_tvarvc[ 1 ]-low OPTIONAL ).
-    ENDIF.
+                  IF line_exists( lt_cust_plants[ werks = ls_input_data-plant  ] ).
+* Case2: Plant from customer - A,B,C : Plant from parameter  C --> Select only stock for plant C
+                    lt_werks_tmp = VALUE #( sign = if_fsbp_const_range=>sign_include
+                                            option = if_fsbp_const_range=>option_equal
+                                          ( low = ls_input_data-plant ) ).
+                    DELETE lt_cust_plants WHERE werks NOT IN lt_werks_tmp.
+                    CLEAR lt_werks_tmp.
 
-    IF NOT lt_data IS INITIAL.
-* Get the Planning Strategy Group from Plant Data for Material
-      SELECT matnr
-            ,strgr
-             FROM marc
-             INTO TABLE @DATA(lt_marc)
-             FOR ALL ENTRIES IN @lt_data
-             WHERE matnr EQ @lt_data-matnr AND
-                   werks EQ @lv_fsi_plant.
+                    lt_werks = VALUE #( FOR ls_cust_plant IN lt_cust_plants
+                                        sign = if_fsbp_const_range=>sign_include
+                                        option = if_fsbp_const_range=>option_equal
+                                      ( low =  ls_cust_plant-werks ) ).
+                  ELSE.
+* Case 3: Plant from customer - A,B,C : Plant from parameter  G --> No plants are selected
+                    DATA(lv_no_plant) =  abap_true.
+                  ENDIF.
 
-* Get Sales Data for Material
-      SELECT matnr
-            ,vkorg
-            ,vtweg
-            ,aumng
-             FROM mvke
-             INTO TABLE @DATA(lt_mvke)
-             FOR ALL ENTRIES IN @lt_data
-             WHERE matnr EQ @lt_data-matnr AND
-                   vkorg EQ @lt_data-vkorg AND
-                   vtweg EQ @lc_10.
+                CATCH cx_sy_itab_line_not_found.
 
-* Customer-Material Info Record Data Table
+              ENDTRY.
 
-      SELECT vkorg
-            ,vtweg
-            ,kunnr
-            ,matnr
-            ,kdmat
-             FROM knmt
-             INTO TABLE @DATA(lt_knmt)
-             FOR ALL ENTRIES IN @lt_data
-             WHERE vkorg EQ @lt_data-vkorg AND
-                   vtweg EQ @lc_10 AND
-                   kunnr EQ @lt_data-kunnr AND
-                   matnr EQ @lt_data-matnr.
+            ELSE.
+* Case4: Plant from customer - A,B,C : Plant from parameter  is blank --> Select only stock for plant  A,B,C
+              lt_werks = VALUE #( FOR ls_cust_plant IN lt_cust_plants
+                                        sign = if_fsbp_const_range=>sign_include
+                                        option = if_fsbp_const_range=>option_equal
+                                ( low =  ls_cust_plant-werks ) ).
 
-      LOOP AT <lt_result> ASSIGNING <ls_result>.
+            ENDIF.
 
-        ASSIGN COMPONENT 'MATNR' OF STRUCTURE <ls_result> TO <lv_matnr_value>.
-        IF sy-subrc IS INITIAL.
-          DATA(ls_marc) = VALUE #( lt_marc[ matnr = <lv_matnr_value> ] OPTIONAL ).
-        ENDIF.
-
-        IF NOT ls_marc IS INITIAL.
-          ASSIGN COMPONENT 'STRGR1' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_strgr1_value>).
-          IF sy-subrc IS INITIAL.
-            <lv_strgr1_value> = ls_marc-strgr.
           ENDIF.
-        ENDIF.
 
-* Minimum quantity
-
-        ASSIGN COMPONENT 'VKORG' OF STRUCTURE <ls_result> TO <lv_vkorg_value>.
-        IF sy-subrc IS INITIAL.
-          DATA(ls_mvke) = VALUE #( lt_mvke[ matnr = <lv_matnr_value>
-                                            vkorg = <lv_vkorg_value>
-                                            vtweg = lc_10 ] OPTIONAL ).
-        ENDIF.
-
-        IF NOT ls_mvke IS INITIAL.
-          ASSIGN COMPONENT 'AUMNG' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_aumng_value>).
-          IF sy-subrc IS INITIAL.
-            <lv_aumng_value> = ls_mvke-aumng.
-          ENDIF.
-        ENDIF.
-
-* Material Number Used by Customer
-
-        ASSIGN COMPONENT 'KUNNR' OF STRUCTURE <ls_result> TO <lv_kunnr_value>.
-        IF sy-subrc IS INITIAL.
-          DATA(ls_knmt) = VALUE #( lt_knmt[ vkorg = <lv_vkorg_value>
-                                            vtweg = lc_10
-                                            kunnr =  <lv_kunnr_value>
-                                            matnr = <lv_matnr_value> ] OPTIONAL ).
-        ENDIF.
-
-        IF NOT ls_knmt IS INITIAL.
-          ASSIGN COMPONENT 'KDMAT' OF STRUCTURE <ls_result> TO FIELD-SYMBOL(<lv_kdmat_value>).
-          IF sy-subrc IS INITIAL.
-            <lv_kdmat_value> = ls_knmt-kdmat.
-          ENDIF.
-        ENDIF.
-
-        CLEAR: ls_marc, ls_mvke, ls_knmt.
-
-      ENDLOOP.
-
-    ENDIF.
+        ENDLOOP.
