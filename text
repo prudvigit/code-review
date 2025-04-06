@@ -1,76 +1,45 @@
-    lt_input_data = VALUE #( FOR ls_entity IN lt_entity
-                               (  material = ls_entity-material
-                                  plant    = ls_entity-plant
-                                  storeLoc = ls_entity-storeLoc
-                                  customer = |{ ls_entity-customer ALPHA = IN }| ) ).
-        SELECT kunnr
-              ,vkorg
-               FROM knvv
-               INTO TABLE @DATA(lt_knvv)
-               FOR ALL ENTRIES IN @lt_input_data
-               WHERE kunnr EQ @lt_input_data-customer.
-        SELECT vkorg
-              ,vtweg
-              ,werks
-               FROM tvkwz
-               INTO TABLE @DATA(lt_tvkwz)
-               FOR ALL ENTRIES IN @lt_knvv
-               WHERE vkorg EQ @lt_knvv-vkorg AND
-                     vtweg EQ @lc_10.
+Here’s a structured reflection template you can use to capture your thoughts:  
 
+---
 
-        LOOP AT lt_input_data INTO DATA(ls_input_data).
+### **1. Most Important Takeaway**  
+*Example:*  
+"The course reinforced that **empathy is the backbone of design thinking**. Understanding user needs deeply—not just superficially—leads to breakthrough solutions. The 'Define the unmet need' step was particularly eye-opening."  
 
-          IF ls_input_data-customer IS INITIAL.
-* Case1: Plant from customer - No customer : Plant from parameter  G --> Select stock for G
-            DATA(ls_werk) = VALUE lty_range_plat( sign   = if_fsbp_const_range=>sign_include
-                                                  option = if_fsbp_const_range=>option_equal
-                                                  low    = ls_input_data-plant ).
-            APPEND ls_werk TO lt_werks.
-          ELSE.
-            DATA(lt_cust_sales_org) = VALUE ltt_vkorg( FOR ls_knvv IN lt_knvv
-                                         WHERE ( kunnr = ls_input_data-customer )
-                                         ( vkorg = ls_knvv-vkorg ) ).
+*(Replace with your key insight.)*  
 
-            DATA(lt_cust_plants) = VALUE ltt_werk( FOR ls_cust_sales_org IN lt_cust_sales_org
-                                                   FOR ls_tvkwz IN lt_tvkwz
-                                                   WHERE ( vkorg = ls_cust_sales_org-vkorg )
-                                                           ( vkorg = ls_cust_sales_org-vkorg
-                                                             werks = ls_tvkwz-werks ) ).
-            IF NOT ls_input_data-plant IS INITIAL.
+---
 
-              TRY .
+### **2. Application to Work/Life**  
+*Example:*  
+- **At work:** Use customer-centric brainstorming to generate ideas in team meetings, ensuring all voices are heard.  
+- **Personal projects:** Prototype early (e.g., sketch app wireframes) to test assumptions before overinvesting time.  
+- **Leadership:** Encourage a culture where failure is framed as learning during innovation sprints.  
 
-                  IF line_exists( lt_cust_plants[ werks = ls_input_data-plant  ] ).
-* Case2: Plant from customer - A,B,C : Plant from parameter  C --> Select only stock for plant C
-                    lt_werks_tmp = VALUE #( sign = if_fsbp_const_range=>sign_include
-                                            option = if_fsbp_const_range=>option_equal
-                                          ( low = ls_input_data-plant ) ).
-                    DELETE lt_cust_plants WHERE werks NOT IN lt_werks_tmp.
-                    CLEAR lt_werks_tmp.
+*(Tailor to your context.)*  
 
-                    lt_werks = VALUE #( FOR ls_cust_plant IN lt_cust_plants
-                                        sign = if_fsbp_const_range=>sign_include
-                                        option = if_fsbp_const_range=>option_equal
-                                      ( low =  ls_cust_plant-werks ) ).
-                  ELSE.
-* Case 3: Plant from customer - A,B,C : Plant from parameter  G --> No plants are selected
-                    DATA(lv_no_plant) =  abap_true.
-                  ENDIF.
+---
 
-                CATCH cx_sy_itab_line_not_found.
+### **3. One Change to Implement**  
+*Example:*  
+"**Ask ‘Why?’ five times** to uncover root problems before jumping to solutions—a simple but powerful reframing tool from the course."  
 
-              ENDTRY.
+*(Choose a specific action.)*  
 
-            ELSE.
-* Case4: Plant from customer - A,B,C : Plant from parameter  is blank --> Select only stock for plant  A,B,C
-              lt_werks = VALUE #( FOR ls_cust_plant IN lt_cust_plants
-                                        sign = if_fsbp_const_range=>sign_include
-                                        option = if_fsbp_const_range=>option_equal
-                                ( low =  ls_cust_plant-werks ) ).
+---
 
-            ENDIF.
+### **4. Connection to Prior Knowledge**  
+*Example:*  
+- **Alignment:** Confirms the Agile principle of iterative testing but adds *empathy tools* (e.g., customer journey mapping).  
+- **New Insight:** "Welcoming uncertainty" contrasts with my instinct to seek quick fixes—now I’ll pause to explore ambiguity.  
 
-          ENDIF.
+*(Compare and contrast with your experience.)*  
 
-        ENDLOOP.
+---
+
+**Hashtags** (Optional):  
+#DesignThinking #Innovation #UserCentric #ProblemSolving  
+
+*(Add your reflections, then edit or expand as needed!)*  
+
+Need help refining your thoughts? Let me know.
