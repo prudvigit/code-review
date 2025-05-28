@@ -1,17 +1,19 @@
-Here’s a polished and professional comment that aligns with the behavior of prioritizing organizational interests, while maintaining a tone suitable for Zensar’s corporate environment:
+REPORT zr_material_selection_screen.
 
----
-**Comment:**  
-"Demonstrates exceptional organizational loyalty by consistently aligning decisions and actions with the company's broader goals, even when it requires setting aside individual or team priorities. This strategic mindset reflects a deep commitment to Zensar's success and fosters a culture of enterprise-first thinking."
+TABLES: marc.
 
----
-### **Key Strengths:**
-1. **Strategic Alignment** - Clearly connects the behavior to organizational success
-2. **Professional Tone** - Maintains appropriate formality for corporate documentation
-3. **Cultural Reinforcement** - Positions this as part of Zensar's expected values
+* Selection screen
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
 
-### **Customization Options:**
-- **Add Specifics**: "During [specific project/challenge], prioritized [organizational need] over [team preference], resulting in [positive outcome]."
-- **More Concise**: "Embodies enterprise-first thinking, consistently elevating Zensar's interests above all."
+PARAMETERS: p_werks TYPE marc-werks OBLIGATORY,     " Plant
+            p_matnr TYPE marc-matnr,                " Material
+            p_beskz TYPE marc-beskz,                " Procurement Type
+            p_dispo TYPE marc-dispo,                " MRP Controller
+            p_ekgrp TYPE marc-ekgrp,                " Buyer
+            p_lgfsb TYPE marc-lgfsb.                " Storage Location
 
-Would you like any adjustments to better match your internal terminology or culture?
+SELECTION-SCREEN END OF BLOCK b1.
+
+INITIALIZATION.
+  text-001 = 'Material Master Selection Criteria'.
+
