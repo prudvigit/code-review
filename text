@@ -1,43 +1,106 @@
-  mara.matnr,         // Material Number
-  makt.maktx,         // Material Description
-  mara.matkl,         // Material Group
-  marc.schgt,         // Batch Management Indicator
-  mara.mtart,         // Material Type
-  marc.rgekz,         // Backflush Indicator
-  marc.sfcpf,         // Special Procurement Type
-  mara.xchpf,         // Batch Management Requirement Indicator
-  marc.werks,         // Plant
-  marc.zzprodcode,    // Custom Field: Product Code
-  mara.ersda,         // Created On (MARA)
-  marc.ersda as marc_ersda, // Created On (MARC)
-  mara.meins,         // Base Unit of Measure
-  marc.mmsta,         // Plant-Specific Material Status
-  mara.mstae,         // Cross-Plant Material Status
-  marc.beskz,         // Procurement Type
-  marc.disgr,         // MRP Group
-  marc.dismm,         // MRP Type
-  marc.dispo,         // MRP Controller
-  marc.ekgrp,         // Purchasing Group
-  marc.plifz,         // Planned Delivery Time
-  marc.sobsl,         // Special Procurement Key
-  marc.webaz,         // Goods Receipt Processing Time
-  marc.minbe,         // Minimum Lot Size
-  marc.bstmi,         // Minimum Order Quantity
-  marc.bstma,         // Maximum Order Quantity
-  marc.wzeit,         // Goods Receipt Time in Workdays
-  mara.raube,         // Storage Conditions
-  mara.qmpur,         // QM Control Indicator in Procurement
-  marc.disls,         // Lot Size
-  marc.sbdkz,         // Quota Arrangement Usage
-  marc.strgr,         // Strategy Group
-  marc.ssqss,         // Safety Time Indicator
-  marc.vrmod,         // Consumption Mode
-  marc.vint1,         // Forward Consumption Period
-  marc.vint2,         // Backward Consumption Period
-  marc.bstrf,         // Reorder Point
-  marc.fvidk,         // Forecast Indicator
-  mara.ntgew,         // Net Weight
-  marc.dzeit,         // In-House Production Time
-  marc.mabst,         // MRP Area
-  marc.lgfsb,         // Storage Location for EP
-  marc.lgpro          // Issue Storage Location
+REPORT zr_mat_master_alv.
+
+TYPES: BEGIN OF ty_mat_info,
+         matnr         TYPE mara-matnr,
+         maktx         TYPE makt-maktx,
+         matkl         TYPE mara-matkl,
+         schgt         TYPE marc-schgt,
+         mtart         TYPE mara-mtart,
+         rgekz         TYPE marc-rgekz,
+         sfcpf         TYPE marc-sfcpf,
+         xchpf         TYPE mara-xchpf,
+         werks         TYPE marc-werks,
+         zzprodcode    TYPE marc-zzprodcode,
+         ersda         TYPE mara-ersda,
+         marc_ersda    TYPE marc-ersda,
+         meins         TYPE mara-meins,
+         mmsta         TYPE marc-mmsta,
+         mstae         TYPE mara-mstae,
+         beskz         TYPE marc-beskz,
+         disgr         TYPE marc-disgr,
+         dismm         TYPE marc-dismm,
+         dispo         TYPE marc-dispo,
+         ekgrp         TYPE marc-ekgrp,
+         plifz         TYPE marc-plifz,
+         sobsl         TYPE marc-sobsl,
+         webaz         TYPE marc-webaz,
+         minbe         TYPE marc-minbe,
+         bstmi         TYPE marc-bstmi,
+         bstma         TYPE marc-bstma,
+         wzeit         TYPE marc-wzeit,
+         raube         TYPE mara-raube,
+         qmpur         TYPE mara-qmpur,
+         disls         TYPE marc-disls,
+         sbdkz         TYPE marc-sbdkz,
+         strgr         TYPE marc-strgr,
+         ssqss         TYPE marc-ssqss,
+         vrmod         TYPE marc-vrmod,
+         vint1         TYPE marc-vint1,
+         vint2         TYPE marc-vint2,
+         bstrf         TYPE marc-bstrf,
+         fvidk         TYPE marc-fvidk,
+         ntgew         TYPE mara-ntgew,
+         gewei         TYPE mara-gewei,
+         dzeit         TYPE marc-dzeit,
+         mabst         TYPE marc-mabst,
+         lgfsb         TYPE marc-lgfsb,
+         lgpro         TYPE marc-lgpro,
+
+         " EORD
+         lifnr         TYPE eord-lifnr,
+         flifn         TYPE eord-flifn,
+         febel         TYPE eord-febel,
+         vrtyp         TYPE eord-vrtyp,
+
+         " QINF
+         lieferant     TYPE qinf-lieferant,
+         qinf_werks    TYPE qinf-werks,
+         qinf_loekz    TYPE qinf-loekz,
+
+         " MAPL
+         mapl_werks    TYPE mapl-werks,
+         plnty         TYPE mapl-plnty,
+         mapl_loekz    TYPE mapl-loekz,
+
+         " MKAL
+         mkal_werks    TYPE mkal-werks,
+         mkal_matnr    TYPE mkal-matnr,
+         verid         TYPE mkal-verid,
+         elpro         TYPE mkal-elpro,
+         alort         TYPE mkal-alort,
+         text1         TYPE mkal-text1,
+         stlal         TYPE mkal-stlal,
+         alnal         TYPE mkal-alnal,
+       END OF ty_mat_info.
+
+TYPES: ty_t_mat_info TYPE STANDARD TABLE OF ty_mat_info WITH EMPTY KEY.
+
+DATA: gt_mat_info TYPE ty_t_mat_info.
+
+*---------------------------------------------------------------------*
+* Select data from CDS view
+*---------------------------------------------------------------------*
+SELECT *
+  INTO TABLE gt_mat_info
+  FROM z_cds_mat_extended.
+
+*---------------------------------------------------------------------*
+* Display ALV using CL_SALV_TABLE
+*---------------------------------------------------------------------*
+CLASS cl_salv_table DEFINITION LOAD.
+
+DATA: gr_alv TYPE REF TO cl_salv_table.
+
+TRY.
+    cl_salv_table=>factory(
+      IMPORTING
+        r_salv_table = gr_alv
+      CHANGING
+        t_table      = gt_mat_info
+    ).
+
+    gr_alv->display( ).
+
+  CATCH cx_salv_msg INTO DATA(lx_msg).
+    MESSAGE lx_msg->get_text( ) TYPE 'E'.
+ENDTRY.
