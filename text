@@ -1,47 +1,55 @@
-MARA-MATNR
-MAKT-MAKTX
-MARA-MATKL
-MARC-SCHGT
-MARA-MTART
-MARC-RGEKZ
-MARC-SFCPF
-MARA-XCHPF 
-MARC-WERKS
-MARC-ZZPRODCODE
-MARA-ERSDA
-MARC-ERSDA
-MARA-MEINS
-MARC-MMSTA
-MARA-MSTAE
-MARC-BESKZ
-MARC-DISGR
-MARC-DISGR
-MARC- DISMM
-MARC-DISPO
-MARC-EKGRP
-MARC-PLIFZ
-MARC-SOBSL
-MARC-WEBAZ
-MARC- MINBE
-MARC- BSTMI
-MARC-BSTMA
-MARC-WZEIT
-MARA-MATKL
-MARA- RAUBE
-MARA- XCHPF
-MARA- QMPUR
-MARC-SFCPF
-MARC-DISLS
-MARC- SBDKZ
-MARC- STRGR
-MARC- SSQSS
-MARC- VRMOD
-MARC- VINT1
-MARC- VINT2
-MARC- BSTRF
-MARC-FVIDK
-MARA-NTGEW
-MARC-DZEIT
-MARC-MABST
-MARC-LGFSB
-MARC-LGPRO
+@AbapCatalog.sqlViewName: 'ZV_MAT_MARC_INFO'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Material Master Extended View'
+
+define view Z_CDS_MAT_MARC_INFO as select from mara
+  inner join makt on mara.matnr = makt.matnr
+  inner join marc on mara.matnr = marc.matnr
+
+{
+  mara.matnr,         // Material Number
+  makt.maktx,         // Material Description
+  mara.matkl,         // Material Group
+  marc.schgt,         // Batch Management Indicator
+  mara.mtart,         // Material Type
+  marc.rgekz,         // Backflush Indicator
+  marc.sfcpf,         // Special Procurement Type
+  mara.xchpf,         // Batch Management Requirement Indicator
+  marc.werks,         // Plant
+  marc.zzprodcode,    // Custom Field: Product Code
+  mara.ersda,         // Created On (MARA)
+  marc.ersda as marc_ersda, // Created On (MARC)
+  mara.meins,         // Base Unit of Measure
+  marc.mmsta,         // Plant-Specific Material Status
+  mara.mstae,         // Cross-Plant Material Status
+  marc.beskz,         // Procurement Type
+  marc.disgr,         // MRP Group
+  marc.dismm,         // MRP Type
+  marc.dispo,         // MRP Controller
+  marc.ekgrp,         // Purchasing Group
+  marc.plifz,         // Planned Delivery Time
+  marc.sobsl,         // Special Procurement Key
+  marc.webaz,         // Goods Receipt Processing Time
+  marc.minbe,         // Minimum Lot Size
+  marc.bstmi,         // Minimum Order Quantity
+  marc.bstma,         // Maximum Order Quantity
+  marc.wzeit,         // Goods Receipt Time in Workdays
+  mara.raube,         // Storage Conditions
+  mara.qmpur,         // QM Control Indicator in Procurement
+  marc.disls,         // Lot Size
+  marc.sbdkz,         // Quota Arrangement Usage
+  marc.strgr,         // Strategy Group
+  marc.ssqss,         // Safety Time Indicator
+  marc.vrmod,         // Consumption Mode
+  marc.vint1,         // Forward Consumption Period
+  marc.vint2,         // Backward Consumption Period
+  marc.bstrf,         // Reorder Point
+  marc.fvidk,         // Forecast Indicator
+  mara.ntgew,         // Net Weight
+  marc.dzeit,         // In-House Production Time
+  marc.mabst,         // MRP Area
+  marc.lgfsb,         // Storage Location for EP
+  marc.lgpro          // Issue Storage Location
+}
+where makt.spras = $session.system_language
