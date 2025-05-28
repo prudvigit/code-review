@@ -1,19 +1,47 @@
-REPORT zr_material_selection_screen.
-
-TABLES: marc.
-
-* Selection screen
-SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
-
-SELECT-OPTIONS: so_werks FOR marc-werks,   " Plant
-                so_matnr FOR marc-matnr,   " Material
-                so_beskz FOR marc-beskz,   " Procurement Type
-                so_dispo FOR marc-dispo,   " MRP Controller
-                so_ekgrp FOR marc-ekgrp,   " Buyer
-                so_lgfsb FOR marc-lgfsb.   " Storage Location
-
-SELECTION-SCREEN END OF BLOCK b1.
-
-INITIALIZATION.
-  text-001 = 'Material Master Selection Criteria'.
-
+MARA-MATNR
+MAKT-MAKTX
+MARA-MATKL
+MARC-SCHGT
+MARA-MTART
+MARC-RGEKZ
+MARC-SFCPF
+MARA-XCHPF 
+MARC-WERKS
+MARC-ZZPRODCODE
+MARA-ERSDA
+MARC-ERSDA
+MARA-MEINS
+MARC-MMSTA
+MARA-MSTAE
+MARC-BESKZ
+MARC-DISGR
+MARC-DISGR
+MARC- DISMM
+MARC-DISPO
+MARC-EKGRP
+MARC-PLIFZ
+MARC-SOBSL
+MARC-WEBAZ
+MARC- MINBE
+MARC- BSTMI
+MARC-BSTMA
+MARC-WZEIT
+MARA-MATKL
+MARA- RAUBE
+MARA- XCHPF
+MARA- QMPUR
+MARC-SFCPF
+MARC-DISLS
+MARC- SBDKZ
+MARC- STRGR
+MARC- SSQSS
+MARC- VRMOD
+MARC- VINT1
+MARC- VINT2
+MARC- BSTRF
+MARC-FVIDK
+MARA-NTGEW
+MARC-DZEIT
+MARC-MABST
+MARC-LGFSB
+MARC-LGPRO
