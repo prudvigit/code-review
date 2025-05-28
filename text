@@ -5,12 +5,12 @@ TABLES: marc.
 * Selection screen
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
 
-PARAMETERS: p_werks TYPE marc-werks OBLIGATORY,     " Plant
-            p_matnr TYPE marc-matnr,                " Material
-            p_beskz TYPE marc-beskz,                " Procurement Type
-            p_dispo TYPE marc-dispo,                " MRP Controller
-            p_ekgrp TYPE marc-ekgrp,                " Buyer
-            p_lgfsb TYPE marc-lgfsb.                " Storage Location
+SELECT-OPTIONS: so_werks FOR marc-werks,   " Plant
+                so_matnr FOR marc-matnr,   " Material
+                so_beskz FOR marc-beskz,   " Procurement Type
+                so_dispo FOR marc-dispo,   " MRP Controller
+                so_ekgrp FOR marc-ekgrp,   " Buyer
+                so_lgfsb FOR marc-lgfsb.   " Storage Location
 
 SELECTION-SCREEN END OF BLOCK b1.
 
