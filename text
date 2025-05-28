@@ -1,22 +1,87 @@
-EORD-LIFNR
-EORD-FLIFN 
-QINF-LIEFERANT 
-EORD.FEBEL 
-EORD.VRTYP 
-QINF- WERK
-QINF -LOEKZ 
-MARA-QMPUR
-MARC-SSQSS
-MAPL- WERKS 
-MAPL- PLNTY  
-MAPL- LOEKZ 
-MARC-BESKZ 
-MARC-SOBSL 
-MKAL- WERKS
-MKAL- MATNR
-MKAL-VERID
-MKAL-ELPRO
-MKAL-ALORT
-MKAL-TEXT1
-MKAL-STLAL
-MKAL-ALNAL
+@AbapCatalog.sqlViewName: 'ZV_MAT_EXTENDED'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Extended Material Master View'
+
+define view Z_CDS_MAT_EXTENDED as select from mara
+  inner join makt on mara.matnr = makt.matnr and makt.spras = $session.system_language
+  inner join marc on marc.matnr = mara.matnr
+  left outer join eord on eord.matnr = mara.matnr and eord.werks = marc.werks
+  left outer join qinf on qinf.matnr = mara.matnr and qinf.werks = marc.werks
+  left outer join mapl on mapl.matnr = mara.matnr and mapl.werks = marc.werks
+  left outer join mkal on mkal.matnr = mara.matnr and mkal.werks = marc.werks
+
+{
+  // Existing fields
+  mara.matnr,
+  makt.maktx,
+  mara.matkl,
+  marc.schgt,
+  mara.mtart,
+  marc.rgekz,
+  marc.sfcpf,
+  mara.xchpf,
+  marc.werks,
+  marc.zzprodcode,
+  mara.ersda,
+  marc.ersda as marc_ersda,
+  mara.meins,
+  marc.mmsta,
+  mara.mstae,
+  marc.beskz,
+  marc.disgr,
+  marc.dismm,
+  marc.dispo,
+  marc.ekgrp,
+  marc.plifz,
+  marc.sobsl,
+  marc.webaz,
+  marc.minbe,
+  marc.bstmi,
+  marc.bstma,
+  marc.wzeit,
+  mara.raube,
+  mara.qmpur,
+  marc.disls,
+  marc.sbdkz,
+  marc.strgr,
+  marc.ssqss,
+  marc.vrmod,
+  marc.vint1,
+  marc.vint2,
+  marc.bstrf,
+  marc.fvidk,
+  mara.ntgew,
+  mara.gewei,
+  marc.dzeit,
+  marc.mabst,
+  marc.lgfsb,
+  marc.lgpro,
+
+  // EORD (Source List)
+  eord.lifnr,        // Vendor
+  eord.flifn,        // Fixed Vendor
+  eord.febel,        // Delivery Block
+  eord.vrtyp,        // Procurement Type in Source List
+
+  // QINF (Quality Info Record)
+  qinf.lieferant,    // Vendor
+  qinf.werks as qinf_werks,
+  qinf.loekz as qinf_loekz, // Deletion flag
+
+  // MAPL (Task List Assignments)
+  mapl.werks as mapl_werks,
+  mapl.plnty,         // Task list type
+  mapl.loekz as mapl_loekz,
+
+  // MKAL (Production Version)
+  mkal.werks as mkal_werks,
+  mkal.matnr as mkal_matnr,
+  mkal.verid,         // Production Version
+  mkal.elpro,         // Explosion Indicator
+  mkal.alort,         // Issue Storage Location
+  mkal.text1,         // Description
+  mkal.stlal,         // BOM Alt
+  mkal.alnal          // Routing Alt
+
+}
