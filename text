@@ -1,6 +1,5 @@
-  -- Calculated MRP Type per business rules
   case
-    when marc.werks = '7165' and substr(mara.matnr,1,2) in ('71','06') then 'VB'
+    when marc.werks = '7165' and ( mara.matnr like '71%' or mara.matnr like '06%' ) then 'VB'
     when marc.werks = '7165' and mara.mtart in ('ZFRT','ZHAB','ZROH') then 'PD'
     when marc.werks = '7165' and mara.mtart = 'ZUNB' then 'VB'
     when marc.werks = '7165' and mara.mtart = 'ZSRV' then ''
