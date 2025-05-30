@@ -1,72 +1,23 @@
-TYPES: BEGIN OF ty_mat_extended,
-  MaterialNumber            TYPE mara-matnr,        " Material Number
-  MaterialDescription       TYPE makt-maktx,        " Material Description
-  MaterialGroup             TYPE mara-matkl,        " Material Group
-  BulkIndicator             TYPE marc-schgt,        " Bulk Material Indicator
-  MaterialType              TYPE mara-mtart,        " Material Type
-  BackflushIndicator        TYPE marc-rgekz,        " Backflush Indicator
-  SchedulingProfile         TYPE marc-sfcpf,        " Scheduling Profile
-  BatchManagement           TYPE mara-xchpf,        " Batch Management Indicator
-  Plant                      TYPE marc-werks,        " Plant
-  ProductCode               TYPE marc-zzprodcode,   " Custom Product Code
-  CreatedOn                 TYPE mara-ersda,        " Material Creation Date
-  MarcCreatedOn             TYPE marc-ersda,        " Plant Data Created On
-  BaseUnit                  TYPE mara-meins,        " Base Unit of Measure
-  MMStatus                  TYPE marc-mmsta,        " Plant-Specific Material Status
-  CrossPlantStatus          TYPE mara-mstae,        " Cross-Plant Material Status
-  ProcurementType           TYPE marc-beskz,        " Procurement Type
-  MRPGroup                  TYPE marc-disgr,        " MRP Group
-  MRPType                   TYPE marc-dismm,        " MRP Type
-  MRPController             TYPE marc-dispo,        " MRP Controller
-  PurchasingGroup           TYPE marc-ekgrp,        " Purchasing Group
-  PlannedDeliveryTime       TYPE marc-plifz,        " Planned Delivery Time (Days)
-  SpecialProcurementType    TYPE marc-sobsl,        " Special Procurement Type
-  GRProcessingTime          TYPE marc-webaz,        " GR Processing Time (Days)
-  MinimumLotSize            TYPE marc-minbe,        " Minimum Lot Size
-  FixedLotSize              TYPE marc-bstmi,        " Fixed Lot Size Min
-  FixedLotSizeMax           TYPE marc-bstma,        " Fixed Lot Size Max
-  InHouseProductionTime     TYPE marc-wzeit,        " In-House Production Time (Days)
-  StorageConditions         TYPE mara-raube,        " Storage Conditions
-  QMInProcurement           TYPE mara-qmpur,        " QM in Procurement
-  LotSizeProcedure          TYPE marc-disls,        " Lot Size Procedure
-  IndividualCollectiveIndicator TYPE marc-sbdkz,  " Individual/Collective Indicator
-  StrategyGroup             TYPE marc-strgr,        " Strategy Group
-  QuotaArrangementUsage     TYPE marc-ssqss,        " Quota Arrangement Usage
-  ConsumptionMode           TYPE marc-vrmod,        " Consumption Mode
-  ForwardConsumptionPeriod  TYPE marc-vint1,        " Forward Consumption Period
-  BackwardConsumptionPeriod TYPE marc-vint2,        " Backward Consumption Period
-  PlanningStrategyIndicator TYPE marc-bstrf,        " Planning Strategy Indicator
-  ForecastIndicator         TYPE marc-fvidk,        " Forecast Indicator
-  NetWeight                 TYPE mara-ntgew,        " Net Weight
-  WeightUnit                TYPE mara-gewei,        " Unit of Weight
-  SchedulingMarginKey       TYPE marc-dzeit,        " Scheduling Margin Key
-  AvailabilityCheck         TYPE marc-mabst,        " Availability Check Indicator
-  IssueStorageLocation      TYPE marc-lgfsb,        " Issue Storage Location
-  ProductionStorageLocation TYPE marc-lgpro,        " Production Storage Location
+  // Bulk material rule: X if type = ZPRR
+  case
+    when mara.mtart = 'ZPRR' then 'X'
+    else ''
+  end as schgt_rule,                                 // Rule: BulkIndicator by MaterialType
 
-  SourceListVendor          TYPE eord-lifnr,        " Source List Vendor
-  FixedVendor               TYPE eord-flifn,        " Fixed Vendor in Source List
-  DeliveryBlock             TYPE eord-febel,        " Delivery Block in Source List
-  ProcurementTypeSourceList TYPE eord-vrtyp,        " Procurement Type (Source List)
+  // Bulk error: if BulkIndicator manually X but type <> ZPRR
+  case
+    when marc_comp.schgt = 'X' and mara.mtart <> 'ZPRR'
+      then 'Error: BULK'
+    else ''
+  end as bulk_error,                                // Error if inconsistent bulk setting
 
-  QInfoRecordVendor         TYPE qinf-lieferant,    " Quality Info Record Vendor
-  QInfoPlant                TYPE qinf-werks,        " Plant in Quality Info Record
-  QInfoDeletionFlag         TYPE qinf-loekz,        " Deletion Flag in QInfo Record
+  // Backflush Rule Logic
+  case
+    when marc_header.sfcpf = 'Z00001' and mara.xchpf <> 'X' then 'X'
+    else ''
+  end as backflush_check,                            // Rule: Backflush allowed
 
-  MaplPlant                 TYPE mapl-werks,        " Plant for Task List Assignment
-  TaskListType              TYPE mapl-plnty,        " Task List Type
-  MaplDeletionFlag          TYPE mapl-loekz,        " Deletion Indicator (MAPL)
-
-  MkalPlant                 TYPE mkal-werks,        " Plant in Production Version
-  MkalMaterial              TYPE mkal-matnr,        " Material in Production Version
-  ProductionVersion         TYPE mkal-verid,        " Production Version
-  ExplosionIndicator        TYPE mkal-elpro,        " Explosion Indicator
-  IssueStorageLocationPV    TYPE mkal-alort,        " Issue Storage Location in PV
-  ProductionVersionText     TYPE mkal-text1,        " Production Version Description
-  BOMAlternative            TYPE mkal-stlal,        " BOM Alternative
-  RoutingAlternative        TYPE mkal-alnal,        " Routing Alternative
-
-  schgt_rule                TYPE c LENGTH 1,       " Bulk Indicator Rule (ZPRR → X)
-  backflush_check           TYPE c LENGTH 1,       " Backflush Check Flag (X = OK)
-  backflush_error           TYPE string             " Backflush Error Message
-TYPES: END OF ty_mat_extended.
+  case
+    when marc_header.sfcpf = 'Z00001' and mara.xchpf = 'X' then 'Error: BACKFLUSH'
+    else ''
+  end as backflush_error                             // Error if batch managed and schedule profile = Z00001
