@@ -1,14 +1,15 @@
+  -- Calculated MRP Type per business rules
   case
     when marc.werks = '7165' and ( mara.matnr like '71%' or mara.matnr like '06%' ) then 'VB'
-    when marc.werks = '7165' and mara.mtart in ('ZFRT','ZHAB','ZROH') then 'PD'
+    when marc.werks = '7165' and ( mara.mtart = 'ZFRT' or mara.mtart = 'ZHAB' or mara.mtart = 'ZROH' ) then 'PD'
     when marc.werks = '7165' and mara.mtart = 'ZUNB' then 'VB'
     when marc.werks = '7165' and mara.mtart = 'ZSRV' then ''
     when marc.werks = '7165' and mara.mtart = 'ZRSA' then 'ND'
-    when marc.werks = '7165' and mara.mtart in ('ZERP','ZPRR','ZPRA') and stko.stlnr is not null then 'PD'
-    when marc.werks = '7165' and mara.mtart in ('ZERP','ZPRR','ZPRA') and stko.stlnr is null then 'VB'
-    when marc.werks = '7165' and mara.mtart in ('ZRSA','ZSRV','ZPRA','ZPRR') then 'ND'
-    when marc.werks not in ('7165','7110') and mara.mtart in ('ZFRT','ZHAB','ZROH','ZERP') then 'PD'
-    when marc.werks not in ('7165','7110') and mara.mtart = 'ZUNB' then 'VB'
-    when marc.werks not in ('7165','7110') and mara.mtart in ('ZRSA','ZSRV','ZPRA','ZPRR') then 'ND'
+    when marc.werks = '7165' and ( mara.mtart = 'ZERP' or mara.mtart = 'ZPRR' or mara.mtart = 'ZPRA' ) and stko.stlnr is not null then 'PD'
+    when marc.werks = '7165' and ( mara.mtart = 'ZERP' or mara.mtart = 'ZPRR' or mara.mtart = 'ZPRA' ) and stko.stlnr is null then 'VB'
+    when marc.werks = '7165' and ( mara.mtart = 'ZRSA' or mara.mtart = 'ZSRV' or mara.mtart = 'ZPRA' or mara.mtart = 'ZPRR' ) then 'ND'
+    when marc.werks <> '7165' and marc.werks <> '7110' and ( mara.mtart = 'ZFRT' or mara.mtart = 'ZHAB' or mara.mtart = 'ZROH' or mara.mtart = 'ZERP' ) then 'PD'
+    when marc.werks <> '7165' and marc.werks <> '7110' and mara.mtart = 'ZUNB' then 'VB'
+    when marc.werks <> '7165' and marc.werks <> '7110' and ( mara.mtart = 'ZRSA' or mara.mtart = 'ZSRV' or mara.mtart = 'ZPRA' or mara.mtart = 'ZPRR' ) then 'ND'
     else 'Error: MRPTYPE'
-  end                           as CalculatedMRPType
+  end as CalculatedMRPType
