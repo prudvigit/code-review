@@ -13,110 +13,106 @@ define view Z_CDS_MAT_EXTENDED as select from mara
   left outer join stpo on stpo.idnrk = mara.matnr
   left outer join stko on stko.stlnr = stpo.stlnr
   left outer join marc as marc_header on marc_header.matnr = stko.matnr and marc_header.werks = marc_comp.werks
+  // Joins for vendor info record check
+  left outer join eina on eina.lifnr = eord.lifnr and eina.matnr = mara.matnr
+  left outer join eine on eine.infnr = eina.infnr and eine.werks = marc_comp.werks
 {
-  mara.matnr   as MaterialNumber,                    // Material Number
-  makt.maktx   as MaterialDescription,               // Material Description
-  mara.matkl   as MaterialGroup,                     // Material Group
-  marc_comp.schgt as BulkIndicator,                  // Bulk Material Indicator
-  mara.mtart   as MaterialType,                      // Material Type
-  marc_comp.rgekz as BackflushIndicator,             // Backflush Indicator
-  marc_comp.sfcpf as SchedulingProfile,              // Scheduling Profile
-  mara.xchpf   as BatchManagement,                   // Batch Management Indicator
-  marc_comp.werks as Plant,                          // Plant
-  marc_comp.zzprodcode as ProductCode,               // Custom Product Code
-  mara.ersda   as CreatedOn,                         // Material Creation Date
-  marc_comp.ersda as MarcCreatedOn,                  // Plant Data Created On
-  mara.meins   as BaseUnit,                          // Base Unit of Measure
-  marc_comp.mmsta as MMStatus,                       // Plant-Specific Material Status
-  mara.mstae   as CrossPlantStatus,                  // Cross-Plant Material Status
-  marc_comp.beskz as ProcurementType,                // Procurement Type
-  marc_comp.disgr as MRPGroup,                       // MRP Group
-  marc_comp.dismm as MRPType,                        // MRP Type
-  marc_comp.dispo as MRPController,                  // MRP Controller
-  marc_comp.ekgrp as PurchasingGroup,                // Purchasing Group
-  marc_comp.plifz as PlannedDeliveryTime,            // Planned Delivery Time
-  marc_comp.sobsl as SpecialProcurementType,         // Special Procurement Type
-  marc_comp.webaz as GRProcessingTime,               // GR Processing Time in Days
-  marc_comp.minbe as MinimumLotSize,                 // Minimum Lot Size
-  marc_comp.bstmi as FixedLotSize,                   // Fixed Lot Size Min
-  marc_comp.bstma as FixedLotSizeMax,                // Fixed Lot Size Max
-  marc_comp.wzeit as InHouseProductionTime,          // In-House Production Time
-  mara.raube   as StorageConditions,                 // Storage Conditions
-  mara.qmpur   as QMInProcurement,                   // QM in Procurement
-  marc_comp.disls as LotSizeProcedure,               // Lot Size Procedure
-  marc_comp.sbdkz as IndividualCollectiveIndicator,  // Individual/Collective Indicator
-  marc_comp.strgr as StrategyGroup,                  // Strategy Group
-  marc_comp.ssqss as QuotaArrangementUsage,          // Quota Arrangement Usage
-  marc_comp.vrmod as ConsumptionMode,                // Consumption Mode
-  marc_comp.vint1 as ForwardConsumptionPeriod,       // Forward Consumption Period
-  marc_comp.vint2 as BackwardConsumptionPeriod,      // Backward Consumption Period
-  marc_comp.bstrf as PlanningStrategyIndicator,      // Planning Strategy Indicator
-  marc_comp.fvidk as ForecastIndicator,              // Forecast Indicator
-  mara.ntgew   as NetWeight,                         // Net Weight
-  mara.gewei   as WeightUnit,                        // Unit of Weight
-  marc_comp.dzeit as SchedulingMarginKey,            // Scheduling Margin Key
-  marc_comp.mabst as AvailabilityCheck,              // Availability Check Indicator
-  marc_comp.lgfsb as IssueStorageLocation,           // Issue Storage Location
-  marc_comp.lgpro as ProductionStorageLocation,      // Production Storage Location
+  mara.matnr   as MaterialNumber,
+  makt.maktx   as MaterialDescription,
+  mara.matkl   as MaterialGroup,
+  marc_comp.schgt as BulkIndicator,
+  mara.mtart   as MaterialType,
+  marc_comp.rgekz as BackflushIndicator,
+  marc_comp.sfcpf as SchedulingProfile,
+  mara.xchpf   as BatchManagement,
+  marc_comp.werks as Plant,
+  marc_comp.zzprodcode as ProductCode,
+  mara.ersda   as CreatedOn,
+  marc_comp.ersda as MarcCreatedOn,
+  mara.meins   as BaseUnit,
+  marc_comp.mmsta as MMStatus,
+  mara.mstae   as CrossPlantStatus,
+  marc_comp.beskz as ProcurementType,
+  marc_comp.disgr as MRPGroup,
+  marc_comp.dismm as MRPType,
+  marc_comp.dispo as MRPController,
+  marc_comp.ekgrp as PurchasingGroup,
+  marc_comp.plifz as PlannedDeliveryTime,
+  marc_comp.sobsl as SpecialProcurementType,
+  marc_comp.webaz as GRProcessingTime,
+  marc_comp.minbe as MinimumLotSize,
+  marc_comp.bstmi as FixedLotSize,
+  marc_comp.bstma as FixedLotSizeMax,
+  marc_comp.wzeit as InHouseProductionTime,
+  mara.raube   as StorageConditions,
+  mara.qmpur   as QMInProcurement,
+  marc_comp.disls as LotSizeProcedure,
+  marc_comp.sbdkz as IndividualCollectiveIndicator,
+  marc_comp.strgr as StrategyGroup,
+  marc_comp.ssqss as QuotaArrangementUsage,
+  marc_comp.vrmod as ConsumptionMode,
+  marc_comp.vint1 as ForwardConsumptionPeriod,
+  marc_comp.vint2 as BackwardConsumptionPeriod,
+  marc_comp.bstrf as PlanningStrategyIndicator,
+  marc_comp.fvidk as ForecastIndicator,
+  mara.ntgew   as NetWeight,
+  mara.gewei   as WeightUnit,
+  marc_comp.dzeit as SchedulingMarginKey,
+  marc_comp.mabst as AvailabilityCheck,
+  marc_comp.lgfsb as IssueStorageLocation,
+  marc_comp.lgpro as ProductionStorageLocation,
 
-  eord.lifnr   as SourceListVendor,                  // Source List Vendor
-  eord.flifn   as FixedVendor,                       // Fixed Vendor in Source List
-  eord.febel   as DeliveryBlock,                     // Delivery Block in Source List
-  eord.vrtyp   as ProcurementTypeSourceList,         // Procurement Type (Source List)
+  eord.lifnr   as SourceListVendor,
+  eord.flifn   as FixedVendor,
+  eord.febel   as DeliveryBlock,
+  eord.vrtyp   as ProcurementTypeSourceList,
 
-  // Vendor-Info Record Flag (Y/#/N)
+  // Vendor-Info Record Flag: Y if FLIFN exists and EINA/EINE entries exist; '#' if no FLIFN; N if FLIFN exists but no entries
   case
-    when eord.flifn <> '' and exists(
-      select from eina as ea inner join eine as ee on ea.infnr = ee.infnr
-      where ea.lifnr = eord.lifnr and ea.matnr = mara.matnr
-    ) then 'Y'
+    when eord.flifn <> '' and eina.infnr is not null and eine.infnr is not null then 'Y'
     when eord.flifn = '' then '#'
-    when eord.flifn <> '' and not exists(
-      select from eina as ea inner join eine as ee on ea.infnr = ee.infnr
-      where ea.lifnr = eord.lifnr and ea.matnr = mara.matnr
-    ) then 'N'
+    when eord.flifn <> '' and (eina.infnr is null or eine.infnr is null) then 'N'
     else ''
-  end as VendorInfoFlag,                             // Y: EORD-FLIFN filled & record exists; #: no FLIFN; N: filled & no record
+  end as VendorInfoFlag,
 
-  qinf.lieferant as QInfoRecordVendor,               // Quality Info Record Vendor
-  qinf.werks   as QInfoPlant,                        // Plant in Quality Info Record
-  qinf.loekz   as QInfoDeletionFlag,                 // Deletion Flag in QInfo Record
+  qinf.lieferant as QInfoRecordVendor,
+  qinf.werks   as QInfoPlant,
+  qinf.loekz   as QInfoDeletionFlag,
 
-  mapl.werks   as MaplPlant,                         // Plant for Task List Assignment
-  mapl.plnty   as TaskListType,                      // Task List Type
-  mapl.loekz   as MaplDeletionFlag,                  // Deletion Indicator (MAPL)
+  mapl.werks   as MaplPlant,
+  mapl.plnty   as TaskListType,
+  mapl.loekz   as MaplDeletionFlag,
 
-  mkal.werks   as MkalPlant,                         // Plant in Production Version
-  mkal.matnr   as MkalMaterial,                      // Material in Production Version
-  mkal.verid   as ProductionVersion,                 // Production Version
-  mkal.elpro   as ExplosionIndicator,                // Explosion Indicator
-  mkal.alort   as IssueStorageLocationPV,            // Issue Storage Location in PV
-  mkal.text1   as ProductionVersionText,             // Production Version Description
-  mkal.stlal   as BOMAlternative,                    // BOM Alternative
-  mkal.alnal   as RoutingAlternative,                // Routing Alternative
+  mkal.werks   as MkalPlant,
+  mkal.matnr   as MkalMaterial,
+  mkal.verid   as ProductionVersion,
+  mkal.elpro   as ExplosionIndicator,
+  mkal.alort   as IssueStorageLocationPV,
+  mkal.text1   as ProductionVersionText,
+  mkal.stlal   as BOMAlternative,
+  mkal.alnal   as RoutingAlternative,
 
   // Bulk material rule: X if type = ZPRR
   case
     when mara.mtart = 'ZPRR' then 'X'
     else ''
-  end as schgt_rule,                                 // Rule: BulkIndicator by MaterialType
+  end as schgt_rule,
 
   // Bulk error: if BulkIndicator manually X but type <> ZPRR
   case
-    when marc_comp.schgt = 'X' and mara.mtart <> 'ZPRR'
-      then 'Error: BULK'
+    when marc_comp.schgt = 'X' and mara.mtart <> 'ZPRR' then 'Error: BULK'
     else ''
-  end as bulk_error,                                // Error if inconsistent bulk setting
+  end as bulk_error,
 
   // Backflush Rule Logic
   case
     when marc_header.sfcpf = 'Z00001' and mara.xchpf <> 'X' then 'X'
     else ''
-  end as backflush_check,                            // Rule: Backflush allowed
+  end as backflush_check,
 
   case
     when marc_header.sfcpf = 'Z00001' and mara.xchpf = 'X' then 'Error: BACKFLUSH'
     else ''
-  end as backflush_error                             // Error if batch managed and schedule profile = Z00001
+  end as backflush_error
 
 }
