@@ -1,72 +1,72 @@
 TYPES: BEGIN OF ty_mat_extended,
-         MaterialNumber          TYPE matnr,         " MARA-MATNR
-         MaterialDescription     TYPE maktx,         " MAKT-MAKTX
-         MaterialGroup           TYPE matkl,         " MARA-MATKL
-         BulkIndicator           TYPE marc-schgt,    " MARC-SCHGT
-         MaterialType            TYPE mtart,         " MARA-MTART
-         BackflushIndicator      TYPE marc-rgekz,    " MARC-RGEKZ
-         SchedulingProfile       TYPE marc-sfcpf,    " MARC-SFCPF
-         BatchMgmtIndicator      TYPE mara-xchpf,    " MARA-XCHPF
-         Plant                   TYPE werks_d,       " MARC-WERKS
-         CustomProdCode          TYPE marc-zzprodcode," MARC-ZZPRODCODE
-         CreationDateMaterial    TYPE mara-ersda,    " MARA-ERSDA
-         CreationDatePlantData   TYPE marc-ersda,    " MARC-ERSDA
-         BaseUnitMeasure        TYPE mara-meins,     " MARA-MEINS
-         MaterialStatus          TYPE marc-mmsta,    " MARC-MMSTA
-         CrossPlantMatStatus     TYPE mara-mstae,    " MARA-MSTAE
-         ProcurementType         TYPE marc-beskz,    " MARC-BESKZ
-         MRPGroup                TYPE marc-disgr,    " MARC-DISGR
-         MRPType                 TYPE marc-dismm,    " MARC-DISMM
-         MRPController           TYPE marc-dispo,    " MARC-DISPO
-         PurchasingGroup         TYPE marc-ekgrp,    " MARC-EKGRP
-         PlannedDeliveryTime     TYPE marc-plifz,    " MARC-PLIFZ
-         SpecialProcurementType  TYPE marc-sobsl,    " MARC-SOBSL
-         GRProcessingTime        TYPE marc-webaz,    " MARC-WEBAZ
-         MinimumLotSize          TYPE marc-minbe,    " MARC-MINBE
-         MinLotSizeFixedBatch    TYPE marc-bstmi,    " MARC-BSTMI
-         MaxLotSizeFixedBatch    TYPE marc-bstma,    " MARC-BSTMA
-         InHouseProdTime         TYPE marc-wzeit,    " MARC-WZEIT
-         StorageConditions       TYPE mara-raube,    " MARA-RAUBE
-         QMProcurementIndicator  TYPE mara-qmpur,    " MARA-QMPUR
-         LotSizeProcedure        TYPE marc-disls,    " MARC-DISLS
-         IndividualCollectiveInd TYPE marc-sbdkz,    " MARC-SBDKZ
-         StrategyGroup           TYPE marc-strgr,    " MARC-STRGR
-         QuotaArrUsage           TYPE marc-ssqss,    " MARC-SSQSS
-         ConsumptionMode         TYPE marc-vrmod,    " MARC-VRMOD
-         ForwardConsumption      TYPE marc-vint1,    " MARC-VINT1
-         BackwardConsumption     TYPE marc-vint2,    " MARC-VINT2
-         PlanningStrategyInd     TYPE marc-bstrf,    " MARC-BSTRF
-         ForecastIndicator       TYPE marc-fvidk,    " MARC-FVIDK
-         NetWeight               TYPE mara-ntgew,    " MARA-NTGEW
-         WeightUnit              TYPE mara-gewei,    " MARA-GEWEI
-         SchedulingMarginKey     TYPE marc-dzeit,    " MARC-DZEIT
-         AvailabilityCheck       TYPE marc-mabst,    " MARC-MABST
-         IssueStorageLocation    TYPE marc-lgfsb,    " MARC-LGFSB
-         ProductionStorageLoc    TYPE marc-lgpro,    " MARC-LGPRO
+  MaterialNumber            TYPE mara-matnr,        " Material Number
+  MaterialDescription       TYPE makt-maktx,        " Material Description
+  MaterialGroup             TYPE mara-matkl,        " Material Group
+  BulkIndicator             TYPE marc-schgt,        " Bulk Material Indicator
+  MaterialType              TYPE mara-mtart,        " Material Type
+  BackflushIndicator        TYPE marc-rgekz,        " Backflush Indicator
+  SchedulingProfile         TYPE marc-sfcpf,        " Scheduling Profile
+  BatchManagement           TYPE mara-xchpf,        " Batch Management Indicator
+  Plant                      TYPE marc-werks,        " Plant
+  ProductCode               TYPE marc-zzprodcode,   " Custom Product Code
+  CreatedOn                 TYPE mara-ersda,        " Material Creation Date
+  MarcCreatedOn             TYPE marc-ersda,        " Plant Data Created On
+  BaseUnit                  TYPE mara-meins,        " Base Unit of Measure
+  MMStatus                  TYPE marc-mmsta,        " Plant-Specific Material Status
+  CrossPlantStatus          TYPE mara-mstae,        " Cross-Plant Material Status
+  ProcurementType           TYPE marc-beskz,        " Procurement Type
+  MRPGroup                  TYPE marc-disgr,        " MRP Group
+  MRPType                   TYPE marc-dismm,        " MRP Type
+  MRPController             TYPE marc-dispo,        " MRP Controller
+  PurchasingGroup           TYPE marc-ekgrp,        " Purchasing Group
+  PlannedDeliveryTime       TYPE marc-plifz,        " Planned Delivery Time (Days)
+  SpecialProcurementType    TYPE marc-sobsl,        " Special Procurement Type
+  GRProcessingTime          TYPE marc-webaz,        " GR Processing Time (Days)
+  MinimumLotSize            TYPE marc-minbe,        " Minimum Lot Size
+  FixedLotSize              TYPE marc-bstmi,        " Fixed Lot Size Min
+  FixedLotSizeMax           TYPE marc-bstma,        " Fixed Lot Size Max
+  InHouseProductionTime     TYPE marc-wzeit,        " In-House Production Time (Days)
+  StorageConditions         TYPE mara-raube,        " Storage Conditions
+  QMInProcurement           TYPE mara-qmpur,        " QM in Procurement
+  LotSizeProcedure          TYPE marc-disls,        " Lot Size Procedure
+  IndividualCollectiveIndicator TYPE marc-sbdkz,  " Individual/Collective Indicator
+  StrategyGroup             TYPE marc-strgr,        " Strategy Group
+  QuotaArrangementUsage     TYPE marc-ssqss,        " Quota Arrangement Usage
+  ConsumptionMode           TYPE marc-vrmod,        " Consumption Mode
+  ForwardConsumptionPeriod  TYPE marc-vint1,        " Forward Consumption Period
+  BackwardConsumptionPeriod TYPE marc-vint2,        " Backward Consumption Period
+  PlanningStrategyIndicator TYPE marc-bstrf,        " Planning Strategy Indicator
+  ForecastIndicator         TYPE marc-fvidk,        " Forecast Indicator
+  NetWeight                 TYPE mara-ntgew,        " Net Weight
+  WeightUnit                TYPE mara-gewei,        " Unit of Weight
+  SchedulingMarginKey       TYPE marc-dzeit,        " Scheduling Margin Key
+  AvailabilityCheck         TYPE marc-mabst,        " Availability Check Indicator
+  IssueStorageLocation      TYPE marc-lgfsb,        " Issue Storage Location
+  ProductionStorageLocation TYPE marc-lgpro,        " Production Storage Location
 
-         SourceListVendor        TYPE eord-lifnr,    " EORD-LIFNR
-         FixedVendor             TYPE eord-flifn,    " EORD-FLIFN
-         DeliveryBlock           TYPE eord-febel,    " EORD-FEBEL
-         SourceListProcType      TYPE eord-vrtyp,    " EORD-VRTYP
+  SourceListVendor          TYPE eord-lifnr,        " Source List Vendor
+  FixedVendor               TYPE eord-flifn,        " Fixed Vendor in Source List
+  DeliveryBlock             TYPE eord-febel,        " Delivery Block in Source List
+  ProcurementTypeSourceList TYPE eord-vrtyp,        " Procurement Type (Source List)
 
-         QualityInfoVendor       TYPE qinf-lieferant," QINF-LIEFERANT
-         QualityInfoPlant        TYPE qinf-werks,    " QINF-WERK
-         QualityInfoDelFlag      TYPE qinf-loekz,    " QINF-LOEKZ
+  QInfoRecordVendor         TYPE qinf-lieferant,    " Quality Info Record Vendor
+  QInfoPlant                TYPE qinf-werks,        " Plant in Quality Info Record
+  QInfoDeletionFlag         TYPE qinf-loekz,        " Deletion Flag in QInfo Record
 
-         TaskListPlant           TYPE mapl-werks,    " MAPL-WERKS
-         TaskListType            TYPE mapl-plnty,    " MAPL-PLNTY
-         TaskListDelFlag         TYPE mapl-loekz,    " MAPL-LOEKZ
+  MaplPlant                 TYPE mapl-werks,        " Plant for Task List Assignment
+  TaskListType              TYPE mapl-plnty,        " Task List Type
+  MaplDeletionFlag          TYPE mapl-loekz,        " Deletion Indicator (MAPL)
 
-         ProdVersionPlant        TYPE mkal-werks,    " MKAL-WERKS
-         ProdVersionMaterial     TYPE mkal-matnr,    " MKAL-MATNR
-         ProdVersionID           TYPE mkal-verid,    " MKAL-VERID
-         ExplosionIndicator      TYPE mkal-elpro,    " MKAL-ELPRO
-         IssueStorageLocProd     TYPE mkal-alort,    " MKAL-ALORT
-         ProdVersionDescription  TYPE mkal-text1,    " MKAL-TEXT1
-         BOMAlternative          TYPE mkal-stlal,    " MKAL-STLAL
-         RoutingAlternative      TYPE mkal-alnal,    " MKAL-ALNAL
+  MkalPlant                 TYPE mkal-werks,        " Plant in Production Version
+  MkalMaterial              TYPE mkal-matnr,        " Material in Production Version
+  ProductionVersion         TYPE mkal-verid,        " Production Version
+  ExplosionIndicator        TYPE mkal-elpro,        " Explosion Indicator
+  IssueStorageLocationPV    TYPE mkal-alort,        " Issue Storage Location in PV
+  ProductionVersionText     TYPE mkal-text1,        " Production Version Description
+  BOMAlternative            TYPE mkal-stlal,        " BOM Alternative
+  RoutingAlternative        TYPE mkal-alnal,        " Routing Alternative
 
-         BulkIndicatorRule       TYPE c LENGTH 1,   " Custom: Bulk Indicator Rule (ZPRR/X)
-         BackflushCheckFlag      TYPE c LENGTH 1,   " Custom: Backflush Validity Flag
-         BackflushErrorMessage   TYPE string         " Custom: Backflush Error Message
-       END OF ty_mat_extended.
+  schgt_rule                TYPE c LENGTH 1,       " Bulk Indicator Rule (ZPRR → X)
+  backflush_check           TYPE c LENGTH 1,       " Backflush Check Flag (X = OK)
+  backflush_error           TYPE string             " Backflush Error Message
+TYPES: END OF ty_mat_extended.
