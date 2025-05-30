@@ -1,7 +1,25 @@
-  // Quality Fixed Vendor Flag: Y/#/N
-  case
-    when eord.flifn <> '' and qinf.lieferant = eord.lifnr and qinf.revlv = '01' then 'Y'
-    when eord.flifn = '' then '#'
-    when eord.flifn <> '' and not (qinf.lieferant = eord.lifnr and qinf.revlv = '01') then 'N'
-    else ''
-  end as QualityFixedVendorFlag,
+calcualte the Material type value and update the CDS view
+
+1. material number [MARA-MATNR ] 71* & 06* = VB
+2. material type [MARA-MTART ] ZFRT', 'ZHAB', 'ZROH = PD 
+3.material type ZUNB' = 'VB'
+4. material type  ZSRV = BLANK
+4B. material type  ZRSA' = ND
+5. material type  ZERP/ZPRR/ZPRA/BOM HEADER = PD
+6. material type ZERP/ZPRR/ZPRA/NOT BOM HEADER = VB
+
+
+Branches rules FST
+If plant =7165 
+PD-ZROH,ZFRT,ZHALB/ZERP (in BOM), IF NOT IN BOM =ND.
+VB-ZERP (not in the BOM)/ZUNB/
+ND/BLANK-ZRSA/ZSRV/ZPRA/ZPRR
+
+Other Plants
+If plant <> 7165 /7110
+PD-ZROH,ZFRT,ZHALB/ZERP
+VB=ZUNB
+ND-ZRSA/ZSRV/ZPRA/ZPRR
+
+else
+error Message – MRPTYPE
