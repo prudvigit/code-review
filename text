@@ -1,106 +1,106 @@
-REPORT zr_mat_master_alv.
+@AbapCatalog.sqlViewName: 'ZV_MAT_EXTENDED'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Extended Material Master View'
 
-TYPES: BEGIN OF ty_mat_info,
-         matnr         TYPE mara-matnr,
-         maktx         TYPE makt-maktx,
-         matkl         TYPE mara-matkl,
-         schgt         TYPE marc-schgt,
-         mtart         TYPE mara-mtart,
-         rgekz         TYPE marc-rgekz,
-         sfcpf         TYPE marc-sfcpf,
-         xchpf         TYPE mara-xchpf,
-         werks         TYPE marc-werks,
-         zzprodcode    TYPE marc-zzprodcode,
-         ersda         TYPE mara-ersda,
-         marc_ersda    TYPE marc-ersda,
-         meins         TYPE mara-meins,
-         mmsta         TYPE marc-mmsta,
-         mstae         TYPE mara-mstae,
-         beskz         TYPE marc-beskz,
-         disgr         TYPE marc-disgr,
-         dismm         TYPE marc-dismm,
-         dispo         TYPE marc-dispo,
-         ekgrp         TYPE marc-ekgrp,
-         plifz         TYPE marc-plifz,
-         sobsl         TYPE marc-sobsl,
-         webaz         TYPE marc-webaz,
-         minbe         TYPE marc-minbe,
-         bstmi         TYPE marc-bstmi,
-         bstma         TYPE marc-bstma,
-         wzeit         TYPE marc-wzeit,
-         raube         TYPE mara-raube,
-         qmpur         TYPE mara-qmpur,
-         disls         TYPE marc-disls,
-         sbdkz         TYPE marc-sbdkz,
-         strgr         TYPE marc-strgr,
-         ssqss         TYPE marc-ssqss,
-         vrmod         TYPE marc-vrmod,
-         vint1         TYPE marc-vint1,
-         vint2         TYPE marc-vint2,
-         bstrf         TYPE marc-bstrf,
-         fvidk         TYPE marc-fvidk,
-         ntgew         TYPE mara-ntgew,
-         gewei         TYPE mara-gewei,
-         dzeit         TYPE marc-dzeit,
-         mabst         TYPE marc-mabst,
-         lgfsb         TYPE marc-lgfsb,
-         lgpro         TYPE marc-lgpro,
+define view Z_CDS_MAT_EXTENDED as select from mara
+  inner join makt on mara.matnr = makt.matnr and makt.spras = $session.system_language
+  inner join marc as marc_comp on marc_comp.matnr = mara.matnr
+  left outer join eord on eord.matnr = mara.matnr and eord.werks = marc_comp.werks
+  left outer join qinf on qinf.matnr = mara.matnr and qinf.werks = marc_comp.werks
+  left outer join mapl on mapl.matnr = mara.matnr and mapl.werks = marc_comp.werks
+  left outer join mkal on mkal.matnr = mara.matnr and mkal.werks = marc_comp.werks
+  left outer join stpo on stpo.idnrk = mara.matnr
+  left outer join stko on stko.stlnr = stpo.stlnr
+  left outer join marc as marc_header on marc_header.matnr = stko.matnr and marc_header.werks = marc_comp.werks
+{
+  // Existing fields
+  mara.matnr,
+  makt.maktx,
+  mara.matkl,
+  marc_comp.schgt,
+  mara.mtart,
+  marc_comp.rgekz,
+  marc_comp.sfcpf,
+  mara.xchpf,
+  marc_comp.werks,
+  marc_comp.zzprodcode,
+  mara.ersda,
+  marc_comp.ersda as marc_ersda,
+  mara.meins,
+  marc_comp.mmsta,
+  mara.mstae,
+  marc_comp.beskz,
+  marc_comp.disgr,
+  marc_comp.dismm,
+  marc_comp.dispo,
+  marc_comp.ekgrp,
+  marc_comp.plifz,
+  marc_comp.sobsl,
+  marc_comp.webaz,
+  marc_comp.minbe,
+  marc_comp.bstmi,
+  marc_comp.bstma,
+  marc_comp.wzeit,
+  mara.raube,
+  mara.qmpur,
+  marc_comp.disls,
+  marc_comp.sbdkz,
+  marc_comp.strgr,
+  marc_comp.ssqss,
+  marc_comp.vrmod,
+  marc_comp.vint1,
+  marc_comp.vint2,
+  marc_comp.bstrf,
+  marc_comp.fvidk,
+  mara.ntgew,
+  mara.gewei,
+  marc_comp.dzeit,
+  marc_comp.mabst,
+  marc_comp.lgfsb,
+  marc_comp.lgpro,
 
-         " EORD
-         lifnr         TYPE eord-lifnr,
-         flifn         TYPE eord-flifn,
-         febel         TYPE eord-febel,
-         vrtyp         TYPE eord-vrtyp,
+  // EORD (Source List)
+  eord.lifnr,        // Vendor
+  eord.flifn,        // Fixed Vendor
+  eord.febel,        // Delivery Block
+  eord.vrtyp,        // Procurement Type in Source List
 
-         " QINF
-         lieferant     TYPE qinf-lieferant,
-         qinf_werks    TYPE qinf-werks,
-         qinf_loekz    TYPE qinf-loekz,
+  // QINF (Quality Info Record)
+  qinf.lieferant,    // Vendor
+  qinf.werks as qinf_werks,
+  qinf.loekz as qinf_loekz, // Deletion flag
 
-         " MAPL
-         mapl_werks    TYPE mapl-werks,
-         plnty         TYPE mapl-plnty,
-         mapl_loekz    TYPE mapl-loekz,
+  // MAPL (Task List Assignments)
+  mapl.werks as mapl_werks,
+  mapl.plnty,         // Task list type
+  mapl.loekz as mapl_loekz,
 
-         " MKAL
-         mkal_werks    TYPE mkal-werks,
-         mkal_matnr    TYPE mkal-matnr,
-         verid         TYPE mkal-verid,
-         elpro         TYPE mkal-elpro,
-         alort         TYPE mkal-alort,
-         text1         TYPE mkal-text1,
-         stlal         TYPE mkal-stlal,
-         alnal         TYPE mkal-alnal,
-       END OF ty_mat_info.
+  // MKAL (Production Version)
+  mkal.werks as mkal_werks,
+  mkal.matnr as mkal_matnr,
+  mkal.verid,         // Production Version
+  mkal.elpro,         // Explosion Indicator
+  mkal.alort,         // Issue Storage Location
+  mkal.text1,         // Description
+  mkal.stlal,         // BOM Alt
+  mkal.alnal,         // Routing Alt
 
-TYPES: ty_t_mat_info TYPE STANDARD TABLE OF ty_mat_info WITH EMPTY KEY.
+  // Bulk Material Logic
+  case
+    when mara.mtart = 'ZPRR' then 'X'
+    else ''
+  end as schgt_rule,
 
-DATA: gt_mat_info TYPE ty_t_mat_info.
+  // Backflush Rule Logic
+  case
+    when marc_header.sfcpf = 'Z00001' and mara.xchpf <> 'X' then 'X'
+    else ''
+  end as backflush_check,
 
-*---------------------------------------------------------------------*
-* Select data from CDS view
-*---------------------------------------------------------------------*
-SELECT *
-  INTO TABLE gt_mat_info
-  FROM z_cds_mat_extended.
+  case
+    when marc_header.sfcpf = 'Z00001' and mara.xchpf = 'X' then 'Error: BACKFLUSH'
+    else ''
+  end as backflush_error
 
-*---------------------------------------------------------------------*
-* Display ALV using CL_SALV_TABLE
-*---------------------------------------------------------------------*
-CLASS cl_salv_table DEFINITION LOAD.
-
-DATA: gr_alv TYPE REF TO cl_salv_table.
-
-TRY.
-    cl_salv_table=>factory(
-      IMPORTING
-        r_salv_table = gr_alv
-      CHANGING
-        t_table      = gt_mat_info
-    ).
-
-    gr_alv->display( ).
-
-  CATCH cx_salv_msg INTO DATA(lx_msg).
-    MESSAGE lx_msg->get_text( ) TYPE 'E'.
-ENDTRY.
+}
