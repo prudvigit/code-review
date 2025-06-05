@@ -1,26 +1,23 @@
   // PIR Fixed Vendor Error Logic
   case
     when ( marc.beskz = 'F' and ( marc.sobsl = '' or marc.sobsl like '30%' ) )
-         and ( 
-               case
-                 when ( eord.flifn <> '' or eord.febel <> '' )
-                      and eina.infnr is not null and eine.infnr is not null
-                      and eina.lifnr = eord.lifnr
-                      and eine.werks = marc.werks
-                      and eina.matnr = mara.matnr
-                   then 'Y'
-                 when ( eord.flifn = '' and eord.febel = '' )
-                      and eina.infnr is not null and eine.infnr is not null
-                      and eina.lifnr = eord.lifnr
-                      and eine.werks = marc.werks
-                      and eina.matnr = mara.matnr
-                   then 'N'
-                 when ( eord.flifn = '' and eord.febel = '' )
-                      and ( eina.infnr is null or eine.infnr is null )
-                   then 'N'
-                 else ''
-               end in ('N', '')
-             )
+         and (
+              -- Derived PIR Fixed Vendor Indicator is N or Blank
+              (
+                ( ( eord.flifn = '' and eord.febel = '' )
+                  and ( eina.infnr is null or eine.infnr is null )
+                ) -- No PIR and no fixed vendor
+
+                or
+
+                ( ( eord.flifn = '' and eord.febel = '' )
+                  and ( eina.infnr is not null and eine.infnr is not null )
+                  and eina.lifnr = eord.lifnr
+                  and eine.werks = marc.werks
+                  and eina.matnr = mara.matnr
+                ) -- PIR exists but no fixed vendor
+              )
+         )
       then 'Error: Fixed Vendor'
     else ''
   end as PirFixedVendorError,
