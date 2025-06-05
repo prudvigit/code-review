@@ -1,10 +1,49 @@
-define view ZV_EINA_EINE_SINGLE as select from eina
-  inner join eine on eine.infnr = eina.infnr
-{
-  eina.matnr,
-  eine.werks,
-  eina.lifnr,
-  eine.infnr,
-  max(eine.aedat) as LatestChangedDate
-}
-group by eina.matnr, eine.werks, eina.lifnr, eine.infnr
+ // PIR Indicator Flag
+  case
+    when zv_eord_single.flifn <> '' and zv_eord_single.febel <> ''
+         and marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
+         and zv_eina_eine_single.infnr is not null
+      then 'Y'
+    when zv_eord_single.flifn <> '' and zv_eord_single.febel <> ''
+         and marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
+         and zv_eina_eine_single.infnr is null
+      then 'N'
+    else ''
+  end as PirIndicatorFlag,
+
+  // PIR Fixed Vendor Indicator Flag
+  case
+    when (zv_eord_single.flifn <> '' or zv_eord_single.febel <> '')
+         and zv_eina_eine_single.infnr is not null
+         and zv_eina_eine_single.lifnr = zv_eord_single.lifnr
+         and zv_eina_eine_single.matnr = mara.matnr
+         and zv_eina_eine_single.werks = marc.werks
+      then 'Y'
+    when (zv_eord_single.flifn = '' and zv_eord_single.febel = '')
+         and zv_eina_eine_single.infnr is not null
+      then 'N'
+    when (zv_eord_single.flifn = '' and zv_eord_single.febel = '')
+         and zv_eina_eine_single.infnr is null
+      then 'N'
+    else ''
+  end as PirFixedVendorFlag,
+
+  // PIR Fixed Vendor Error Logic
+  case
+    when marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
+         and (
+           (zv_eord_single.flifn = '' and zv_eord_single.febel = '' and zv_eina_eine_single.infnr is null)
+           or
+           (zv_eord_single.flifn = '' and zv_eord_single.febel = '' and zv_eina_eine_single.infnr is not null and zv_eina_eine_single.lifnr = zv_eord_single.lifnr and zv_eina_eine_single.matnr = mara.matnr and zv_eina_eine_single.werks = marc.werks)
+         )
+      then 'Error: Fixed Vendor'
+    else ''
+  end as PirFixedVendorError,
+
+  // Quality Fixed Vendor Flag
+  case
+    when zv_eord_single.flifn <> '' and qinf.lieferant = zv_eord_single.lifnr and qinf.revlv = '01' then 'Y'
+    when zv_eord_single.flifn = '' then '#'
+    when zv_eord_single.flifn <> '' and not (qinf.lieferant = zv_eord_single.lifnr and qinf.revlv = '01') then 'N'
+    else ''
+  end as QualityFixedVendorFlag,
