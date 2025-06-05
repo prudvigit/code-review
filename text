@@ -1,16 +1,11 @@
-  as select from    mara
-    inner join      makt                       on  mara.matnr = makt.matnr
-                                               and makt.spras = $session.system_language
-    inner join      marc                       on marc.matnr = mara.matnr
-    left outer join zv_eord_single             on zv_eord_single.matnr = mara.matnr and zv_eord_single.werks = marc.werks
-    left outer join qinf                       on  qinf.matnr = mara.matnr and qinf.werk = marc.werks
-    left outer join mapl                       on  mapl.matnr = mara.matnr and mapl.werks = marc.werks
-    left outer join mkal                       on  mkal.matnr = mara.matnr and mkal.werks = marc.werks
-    left outer join ztc2p_enomat_map as enomat on enomat.matnr = mara.matnr
-    left outer join mard                       on  mard.matnr = marc.matnr and mard.werks = marc.werks
-    left outer join zv_eina_eine_single        on  zv_eina_eine_single.matnr = mara.matnr and zv_eina_eine_single.werks = marc.werks
-    left outer join ekpo as ekpo_vendor        on  ekpo_vendor.ebeln = zv_eord_single.flifn
-                                           and ekpo_vendor.matnr = mara.matnr and ekpo_vendor.werks = marc.werks
-    left outer join ekpo as ekpo_agreement     on  ekpo_agreement.ebeln = zv_eord_single.febel
-                                           and ekpo_agreement.matnr = mara.matnr and ekpo_agreement.werks = marc.werks
-    left outer join lfa1                       on lfa1.lifnr = zv_eord_single.lifnr
+define view ZV_EORD_SINGLE as select from eord
+{
+  matnr,
+  werks,
+  lifnr,
+  flifn,
+  febel,
+  vrtyp,
+  max(aedat) as LatestChangedDate
+}
+group by matnr, werks, lifnr, flifn, febel, vrtyp
