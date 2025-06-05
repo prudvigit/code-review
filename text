@@ -1,8 +1,15 @@
-TYPES: BEGIN OF ty_demand_union,
-         material     TYPE matnr,
-         plant        TYPE werks_d,
-         demanddate   TYPE dats,
-       END OF ty_demand_union.
+Plant/material 
 
+IF EORD-FLIFN <> X AND EORD.FEBEL <> X  
 
-TYPES ty_demand_union TYPE zcv_p2m_demand_union.
+ 
+
+AND procurement type MARC-BESKZ = F or MARC-BESKZ = F  & 30 (MARC-SOBSL) – Special procurement type 
+
+ 
+
+   Y => record exists with same plant and material in EINA and EINE table 
+
+   N => record NOT exists with same plant and material in EINA and EINE table 
+
+ 
