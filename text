@@ -1,15 +1,14 @@
-Plant/material 
-
-IF EORD-FLIFN <> X AND EORD.FEBEL <> X  
-
- 
-
-AND procurement type MARC-BESKZ = F or MARC-BESKZ = F  & 30 (MARC-SOBSL) – Special procurement type 
-
- 
-
-   Y => record exists with same plant and material in EINA and EINE table 
-
-   N => record NOT exists with same plant and material in EINA and EINE table 
-
- 
+  case
+    when eord.flifn <> '' and eord.febel <> ''
+         and marc.beskz = 'F'
+         and ( marc.sobsl = '' or marc.sobsl like '30%' )
+         and eina.infnr is not null
+         and eine.infnr is not null
+      then 'Y'
+    when eord.flifn <> '' and eord.febel <> ''
+         and marc.beskz = 'F'
+         and ( marc.sobsl = '' or marc.sobsl like '30%' )
+         and ( eina.infnr is null or eine.infnr is null )
+      then 'N'
+    else ''
+  end as PirIndicatorFlag,
