@@ -1,6 +1,43 @@
-By plant and material, get data for the below 3 tables:-
-SO Demand => VBBE-MBDAT [Mat.Avail.Date ]– >plant/material/date
-Dep Demand => RESB-BDTER [Reqmts date] -– >plant/material/date
-Ind Forecast => MDPB-PDATU [Finish date ]– >plant/material/date
-Union all date from the above table.
-Sort by date, get the first record date.
+@AbapCatalog.sqlViewName: 'ZV_EARLIEST_DEMAND'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Earliest Demand Date by Material and Plant'
+
+define view ZC_EARLIEST_DEMAND_DATE
+  as select from (
+
+    select 
+      vbbe.matnr            as Material,
+      vbbe.werks            as Plant,
+      vbbe.mbdat            as DemandDate
+    from vbbe
+    where vbbe.mbdat is not null
+
+    union all
+
+    select 
+      resb.matnr            as Material,
+      resb.werks            as Plant,
+      resb.bdter            as DemandDate
+    from resb
+    where resb.bdter is not null
+
+    union all
+
+    select 
+      mdpb.matnr            as Material,
+      mdpb.werks            as Plant,
+      mdpb.pdatu            as DemandDate
+    from mdpb
+    where mdpb.pdatu is not null
+
+  ) as DemandUnion
+
+{
+  Material,
+  Plant,
+  min(DemandDate) as EarliestDemandDate
+}
+group by
+  Material,
+  Plant
