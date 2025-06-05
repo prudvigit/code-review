@@ -1,11 +1,10 @@
-define view ZV_EORD_SINGLE as select from eord
+define view ZV_EINA_EINE_SINGLE as select from eina
+  inner join eine on eine.infnr = eina.infnr
 {
-  matnr,
-  werks,
-  lifnr,
-  flifn,
-  febel,
-  vrtyp,
-  max(aedat) as LatestChangedDate
+  eina.matnr,
+  eine.werks,
+  eina.lifnr,
+  eine.infnr,
+  max(eine.aedat) as LatestChangedDate
 }
-group by matnr, werks, lifnr, flifn, febel, vrtyp
+group by eina.matnr, eine.werks, eina.lifnr, eine.infnr
