@@ -1,13 +1,25 @@
-Y =>
-(EORD-FLIFN (SL Fixed vendor) = X OR EORD.FEBEL [Fixed Outline Purchase Agreement Item] = X ) 
-and 
-QINF-LIEFERANT (QIR Vendor) = EORD-LIFNR and
-# => EORD-FLIFN = ‘ ‘.
+  // Updated Quality Fixed Vendor Flag
+  case
+    when ( eord.flifn <> '' or eord.febel <> '' )
+         and qinf.lieferant = eord.lifnr and qinf.revlv = '01'
+      then 'Y'
+    when eord.flifn = '' and eord.febel = ''
+      then '#'
+    when ( eord.flifn <> '' or eord.febel <> '' )
+         and not ( qinf.lieferant = eord.lifnr and qinf.revlv = '01' )
+      then 'N'
+    else ''
+  end as QualityFixedVendorFlag,
 
-N => 
-(EORD-FLIFN (SL Fixed vendor) = X OR EORD.FEBEL = X )  
-and
-Record not found in QINF with same vendor number
-
-Message
-If Quality Fixed vendor= N or #, give error message – QIRFixedVend.
+  // Quality Fixed Vendor Error Message
+  case
+    when 
+      (
+        ( eord.flifn <> '' or eord.febel <> '' )
+        and not ( qinf.lieferant = eord.lifnr and qinf.revlv = '01' )
+      )
+      or
+      ( eord.flifn = '' and eord.febel = '' )
+    then 'Error: QIRFixedVend'
+    else ''
+  end as QualityFixedVendorError,
