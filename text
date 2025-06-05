@@ -1,30 +1,22 @@
-For PIR Fixed vendor indicator Flag
-With Plant and Material, 
+  // PIR Fixed Vendor Indicator Flag
+  case
+    when ( eord.flifn <> '' or eord.febel <> '' )
+         and eina.infnr is not null and eine.infnr is not null
+         and eina.lifnr = eord.lifnr
+         and eine.werks = marc.werks
+         and eina.matnr = mara.matnr
+      then 'Y'  -- Fixed vendor and PIR exist
 
-Y => Fixed vendor and PIR exist
-EORD-FLIFN [Indicator: Fixed Supplier] = X OR EORD.FEBEL [Fixed Outline Purchase Agreement Item] = X 
-and 
-record exists with same plant, vendor number and material in EINA and EINE tables
+    when ( eord.flifn = '' and eord.febel = '' )
+         and eina.infnr is not null and eine.infnr is not null
+         and eina.lifnr = eord.lifnr
+         and eine.werks = marc.werks
+         and eina.matnr = mara.matnr
+      then 'N'  -- PIR exists but no fixed vendor
 
-N => PIR exist and no Fixed Vendor SL
-EORD-FLIFN <> X AND EORD.FEBEL <> X 
-and
-PIR record exists with same plant, vendor number and material in EINA and EINE tables
+    when ( eord.flifn = '' and eord.febel = '' )
+         and ( eina.infnr is null or eine.infnr is null )
+      then 'N'  -- PIR does not exist and no fixed vendor
 
-N => PIR NOT exist and no Fixed Vendor SL
-
-EORD-FLIFN <> X AND EORD.FEBEL <> X 
-and
-PIR NO record exists with same plant, vendor number and material in EINA and EINE tables
-
-
-
-Else “blank” (NOT APPLICABLE]
-
-
-Message
-If buy part [MARC-BESKZ = F or MARC-BESKZ = F  & 30 (MARC-SOBSL) – Special procurement type
-] and PIR Fixed vendor indicator= “N” or “BLANK”, error –> Fixed Vendor
-
-If PIR Fixed vendor indicator= Y, no message 
-
+    else ''
+  end as PirFixedVendorFlag,
