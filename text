@@ -1,44 +1,32 @@
-@AbapCatalog.sqlViewName: 'ZV_EARLIEST_DEMAND'
+@AbapCatalog.sqlViewName: 'ZV_DEMAND_UNION'
 @AbapCatalog.compiler.compareFilter: true
-@AbapCatalog.preserveKey: true
-@AccessControl.authorizationCheck: #CHECK
-@EndUserText.label: 'Earliest Demand'
-define view ZCV_P2M_EARLIEST_DEMAND 
-  as select from (
-  
-    select 
-      vbbe.matnr            as Material,
-      vbbe.werks            as Plant,
-      vbbe.mbdat            as DemandDate
-    from vbbe
-    where vbbe.mbdat is not null
-
-    union all
-
-    select 
-      resb.matnr            as Material,
-      resb.werks            as Plant,
-      resb.bdter            as DemandDate
-    from resb
-    where resb.bdter is not null
-
-    union all
-
-    select 
-      mdpb.matnr            as Material,
-      mdpb.werks            as Plant,
-      mdpb.pdatu            as DemandDate
-    from mdpb
-    where mdpb.pdatu is not null
-
-  ) as DemandUnion
-
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Union of All Demand Types'
+define view ZCV_P2M_DEMAND_UNION
+  as select from vbbe
 {
-  Material,
-  Plant,
-  min(DemandDate) as EarliestDemandDate
+  vbbe.matnr  as Material,
+  vbbe.werks  as Plant,
+  vbbe.mbdat  as DemandDate
 }
-group by
-  Material,
-  Plant    
+where vbbe.mbdat is not null
+
+union all
+
+select from resb
+{
+  resb.matnr  as Material,
+  resb.werks  as Plant,
+  resb.bdter  as DemandDate
 }
+where resb.bdter is not null
+
+union all
+
+select from mdpb
+{
+  mdpb.matnr  as Material,
+  mdpb.werks  as Plant,
+  mdpb.pdatu  as DemandDate
+}
+where mdpb.pdatu is not null
