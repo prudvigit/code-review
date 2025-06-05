@@ -1,15 +1,8 @@
-@AbapCatalog.sqlViewName: 'ZV_EARLIEST_DEMAND'
-@AbapCatalog.compiler.compareFilter: true
-@AbapCatalog.preserveKey: true
-@AccessControl.authorizationCheck: #CHECK
-@EndUserText.label: 'Earliest Demand'
-define view ZCV_P2M_EARLIEST_DEMAND
-  as select from ZCV_P2M_DEMAND_UNION
-{
-  Material,
-  Plant,
-  min(DemandDate) as EarliestDemandDate
-}
-group by
-  Material,
-  Plant
+TYPES: BEGIN OF ty_demand_union,
+         material     TYPE matnr,
+         plant        TYPE werks_d,
+         demanddate   TYPE dats,
+       END OF ty_demand_union.
+
+
+TYPES ty_demand_union TYPE zcv_p2m_demand_union.
