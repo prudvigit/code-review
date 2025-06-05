@@ -1,29 +1,112 @@
- // PIR Indicator Flag
+@AbapCatalog.sqlViewName: 'ZV_BI_NOL'
+@AbapCatalog.compiler.compareFilter: true
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'BI NOL Extended View'
+
+define view zcv_p2m_bi_nol
+  as select from    mara
+    inner join      makt                       on  mara.matnr = makt.matnr
+                                               and makt.spras = $session.system_language
+    inner join      marc                       on marc.matnr = mara.matnr
+    left outer join Zcv_p2m_EORD_SINGLE as eord        on eord.matnr = mara.matnr
+                                               and eord.werks = marc.werks
+    left outer join qinf                       on  qinf.matnr = mara.matnr
+                                               and qinf.werk  = marc.werks
+    left outer join mapl                       on  mapl.matnr = mara.matnr
+                                               and mapl.werks = marc.werks
+    left outer join mkal                       on  mkal.matnr = mara.matnr
+                                               and mkal.werks = marc.werks
+    left outer join ztc2p_enomat_map as enomat on enomat.matnr = mara.matnr
+    left outer join mard                       on  mard.matnr = marc.matnr
+                                               and mard.werks = marc.werks
+    left outer join zcv_p2m_eina_eine_single as eina_eine  on  eina_eine.matnr = mara.matnr
+                                               and eina_eine.werks = marc.werks
+    left outer join ekpo             as ekpo_vendor        on  ekpo_vendor.ebeln = eord.flifn
+                                                           and ekpo_vendor.matnr = mara.matnr
+                                                           and ekpo_vendor.werks = marc.werks
+    left outer join ekpo             as ekpo_agreement     on  ekpo_agreement.ebeln = eord.febel
+                                                           and ekpo_agreement.matnr = mara.matnr
+                                                           and ekpo_agreement.werks = marc.werks
+    left outer join lfa1                       on lfa1.lifnr = eord.lifnr
+
+{
+  mara.matnr          as MaterialNumber,                // Material Number
+  makt.maktx          as MaterialDescription,           // Material Description
+  mara.matkl          as MaterialGroup,                 // Material Group
+  marc.schgt          as BulkIndicator,                 // Bulk Material Indicator
+  mara.mtart          as MaterialType,                  // Material Type
+  marc.rgekz          as BackflushIndicator,            // Backflush Indicator
+  marc.sfcpf          as SchedulingProfile,             // Scheduling Profile
+  mara.xchpf          as BatchManagement,               // Batch Management Indicator
+  marc.werks          as Plant,                         // Plant
+  marc.zzprodcode     as ProductCode,                   // Custom Product Code
+  mara.ersda          as CreatedOn,                     // Material Creation Date
+  mara.meins          as BaseUnit,                      // Base Unit of Measure
+  marc.mmsta          as MMStatus,                      // Plant-Specific Material Status
+  mara.mstae          as CrossPlantStatus,              // Cross-Plant Material Status
+  marc.beskz          as ProcurementType,               // Procurement Type
+  marc.disgr          as MRPGroup,                      // MRP Group
+  marc.dismm          as MRPType,                       // MRP Type
+  marc.dispo          as MRPController,                 // MRP Controller
+  marc.ekgrp          as PurchasingGroup,               // Purchasing Group
+  marc.plifz          as PlannedDeliveryTime,           // Planned Delivery Time
+  marc.sobsl          as SpecialProcurementType,        // Special Procurement Type
+  marc.webaz          as GRProcessingTime,              // GR Processing Time in Days
+  marc.minbe          as MinimumLotSize,                // Minimum Lot Size
+  marc.bstmi          as FixedLotSize,                  // Fixed Lot Size Min
+  marc.bstma          as FixedLotSizeMax,               // Fixed Lot Size Max
+  marc.wzeit          as InHouseProductionTime,         // In-House Production Time
+  mara.raube          as StorageConditions,             // Storage Conditions
+  mara.qmpur          as QMInProcurement,               // QM in Procurement
+  marc.disls          as LotSizeProcedure,              // Lot Size Procedure
+  marc.sbdkz          as IndividualCollectiveIndicator, // Individual/Collective Indicator
+  marc.strgr          as StrategyGroup,                 // Strategy Group
+  marc.ssqss          as QuotaArrangementUsage,         // Quota Arrangement Usage
+  marc.vrmod          as ConsumptionMode,               // Consumption Mode
+  marc.vint1          as ForwardConsumptionPeriod,      // Forward Consumption Period
+  marc.vint2          as BackwardConsumptionPeriod,     // Backward Consumption Period
+  marc.bstrf          as PlanningStrategyIndicator,     // Planning Strategy Indicator
+  marc.fvidk          as ForecastIndicator,             // Forecast Indicator
+  mara.ntgew          as NetWeight,                     // Net Weight
+  mara.gewei          as WeightUnit,                    // Unit of Weight
+  marc.dzeit          as SchedulingMarginKey,           // Scheduling Margin Key
+  marc.mabst          as AvailabilityCheck,             // Availability Check Indicator
+  marc.lgfsb          as IssueStorageLocation,          // Issue Storage Location
+  marc.lgpro          as ProductionStorageLocation,     // Production Storage Location
+
+  eord.lifnr          as FixedVendorID,                 // Fixed Vendor ID
+  eord.flifn          as FixedVendor,                   // Fixed Vendor in Source List
+  eord.febel          as DeliveryBlock,                 // Delivery Block in Source List
+  eord.vrtyp          as ProcurementTypeSourceList,     // Procurement Type (Source List)
+
+
+  // PIR Indicator Flag
   case
-    when zv_eord_single.flifn <> '' and zv_eord_single.febel <> ''
+    when eord.flifn <> '' and eord.febel <> ''
          and marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
-         and zv_eina_eine_single.infnr is not null
+         and eina_eine.infnr is not null
       then 'Y'
-    when zv_eord_single.flifn <> '' and zv_eord_single.febel <> ''
+    when eord.flifn <> '' and eord.febel <> ''
          and marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
-         and zv_eina_eine_single.infnr is null
+         and eina_eine.infnr is null
       then 'N'
     else ''
   end as PirIndicatorFlag,
 
   // PIR Fixed Vendor Indicator Flag
   case
-    when (zv_eord_single.flifn <> '' or zv_eord_single.febel <> '')
-         and zv_eina_eine_single.infnr is not null
-         and zv_eina_eine_single.lifnr = zv_eord_single.lifnr
-         and zv_eina_eine_single.matnr = mara.matnr
-         and zv_eina_eine_single.werks = marc.werks
+    when (eord.flifn <> '' or eord.febel <> '')
+         and eina_eine.infnr is not null
+         and eina_eine.lifnr = eord.lifnr
+         and eina_eine.matnr = mara.matnr
+         and eina_eine.werks = marc.werks
       then 'Y'
-    when (zv_eord_single.flifn = '' and zv_eord_single.febel = '')
-         and zv_eina_eine_single.infnr is not null
+    when (eord.flifn = '' and eord.febel = '')
+         and eina_eine.infnr is not null
       then 'N'
-    when (zv_eord_single.flifn = '' and zv_eord_single.febel = '')
-         and zv_eina_eine_single.infnr is null
+    when (eord.flifn = '' and eord.febel = '')
+         and eina_eine.infnr is null
       then 'N'
     else ''
   end as PirFixedVendorFlag,
@@ -32,9 +115,9 @@
   case
     when marc.beskz = 'F' and (marc.sobsl = '' or marc.sobsl = '30')
          and (
-           (zv_eord_single.flifn = '' and zv_eord_single.febel = '' and zv_eina_eine_single.infnr is null)
+           (eord.flifn = '' and eord.febel = '' and eina_eine.infnr is null)
            or
-           (zv_eord_single.flifn = '' and zv_eord_single.febel = '' and zv_eina_eine_single.infnr is not null and zv_eina_eine_single.lifnr = zv_eord_single.lifnr and zv_eina_eine_single.matnr = mara.matnr and zv_eina_eine_single.werks = marc.werks)
+           (eord.flifn = '' and eord.febel = '' and eina_eine.infnr is not null and eina_eine.lifnr = eord.lifnr and eina_eine.matnr = mara.matnr and eina_eine.werks = marc.werks)
          )
       then 'Error: Fixed Vendor'
     else ''
@@ -42,8 +125,82 @@
 
   // Quality Fixed Vendor Flag
   case
-    when zv_eord_single.flifn <> '' and qinf.lieferant = zv_eord_single.lifnr and qinf.revlv = '01' then 'Y'
-    when zv_eord_single.flifn = '' then '#'
-    when zv_eord_single.flifn <> '' and not (qinf.lieferant = zv_eord_single.lifnr and qinf.revlv = '01') then 'N'
+    when eord.flifn <> '' and qinf.lieferant = eord.lifnr and qinf.revlv = '01' then 'Y'
+    when eord.flifn = '' then '#'
+    when eord.flifn <> '' and not (qinf.lieferant = eord.lifnr and qinf.revlv = '01') then 'N'
     else ''
   end as QualityFixedVendorFlag,
+ 
+
+  qinf.lieferant      as QInfoRecordVendor,      // Quality Info Record Vendor
+  qinf.werk           as QInfoPlant,             // Plant in Quality Info Record
+  qinf.loekz          as QInfoDeletionFlag,      // Deletion Flag in QInfo Record
+
+  mapl.werks          as MaplPlant,              // Plant for Task List Assignment
+  mapl.plnty          as TaskListType,           // Task List Type
+  mapl.loekz          as MaplDeletionFlag,       // Deletion Indicator (MAPL)
+
+  mkal.werks          as MkalPlant,              // Plant in Production Version
+  mkal.matnr          as MkalMaterial,           // Material in Production Version
+  mkal.verid          as ProductionVersion,      // Production Version
+  mkal.elpro          as ExplosionIndicator,     // Explosion Indicator
+  mkal.alort          as IssueStorageLocationPV, // Issue Storage Location in PV
+  mkal.text1          as ProductionVersionText,  // Description in Production Version
+  mkal.stlal          as BOMAlternative,         // BOM Alternative
+  mkal.alnal          as RoutingAlternative,     // Routing Alternative
+
+  // Bulk material rule: X if type = ZPRR
+  case
+    when mara.mtart = 'ZPRR' then 'X'
+    else ''
+  end                 as schgt_rule, // Rule: BulkIndicator by MaterialType
+
+  // Bulk error: if BulkIndicator manually X but type <> ZPRR
+  case
+    when marc.schgt = 'X' and mara.mtart <> 'ZPRR'
+      then 'Error: BULK'
+    else ''
+  end                 as bulk_error, // Error if inconsistent bulk setting
+
+  // Backflush Rule Logic
+  case
+    when marc.sfcpf = 'Z00001' and mara.xchpf <> 'X' then 'X'
+    else ''
+  end                 as backflush_check, // Rule: Backflush allowed
+
+  case
+    when marc.sfcpf = 'Z00001' and mara.xchpf = 'X' then 'Error: BACKFLUSH'
+    else ''
+  end                 as backflush_error, // Error if batch managed and schedule profile = Z00001
+
+  // Contract Lead Time: EKPO.PLIFZ based on fixed vendor or agreement
+  case
+   when ( eord.flifn <> '' or eord.febel <> '' ) and eord.vrtyp = 'K' then
+     case
+       when eord.flifn <> '' then ekpo_vendor.plifz
+       else ekpo_agreement.plifz
+     end
+   else 0
+  end                 as ContractLeadTime,
+
+  // Calculated MRP Type per business rules
+  case
+    when marc.werks = '7110' and ( mara.matnr like '71%' or mara.matnr like '06%' ) then 'VB'
+    when marc.werks = '7110' and ( mara.mtart = 'ZFRT' or mara.mtart = 'ZHAB' or mara.mtart = 'ZROH' ) then 'PD'
+    when marc.werks = '7165' and mara.mtart = 'ZUNB' then 'VB'
+    when marc.werks = '7165' and mara.mtart = 'ZSRV' then ''
+    when marc.werks = '7165' and mara.mtart = 'ZRSA' then 'ND'
+    when marc.werks = '7165' and ( mara.mtart = 'ZERP' or mara.mtart = 'ZPRR' or mara.mtart = 'ZPRA' )  then 'PD'
+    when marc.werks = '7165' and ( mara.mtart = 'ZERP' or mara.mtart = 'ZPRR' or mara.mtart = 'ZPRA' )  then 'VB'
+    when marc.werks = '7165' and ( mara.mtart = 'ZRSA' or mara.mtart = 'ZSRV' or mara.mtart = 'ZPRA' or mara.mtart = 'ZPRR' ) then 'ND'
+    when marc.werks <> '7165' and marc.werks <> '7110' and ( mara.mtart = 'ZFRT' or mara.mtart = 'ZHAB' or mara.mtart = 'ZROH' or mara.mtart = 'ZERP' ) then 'PD'
+    when marc.werks <> '7165' and marc.werks <> '7110' and mara.mtart = 'ZUNB' then 'VB'
+    when marc.werks <> '7165' and marc.werks <> '7110' and ( mara.mtart = 'ZRSA' or mara.mtart = 'ZSRV' or mara.mtart = 'ZPRA' or mara.mtart = 'ZPRR' ) then 'ND'
+    else 'Error: MRPTYPE'
+  end                 as CalculatedMRPType,
+  enomat.manufacturer as ManufacturerName, // Manufacturer
+  enomat.mpn          as ManufacturerPartNumber, // Manufacturer part number
+  mard.ersda          as mardcratedon, // Material Extension Date
+  lfa1.name1          as FixedVendorname // Fixed Vendor name
+
+}
