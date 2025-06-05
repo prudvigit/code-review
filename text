@@ -1,93 +1,13 @@
-@AbapCatalog.sqlViewName: 'ZV_BINOLPRJ'
-@EndUserText.label: 'Projection View for BI NOL with Distinct Material and Plant'
-@AccessControl.authorizationCheck: #CHECK
-@VDM.viewType: #PROJECTION
+Y =>
+(EORD-FLIFN (SL Fixed vendor) = X OR EORD.FEBEL [Fixed Outline Purchase Agreement Item] = X ) 
+and 
+QINF-LIEFERANT (QIR Vendor) = EORD-LIFNR and
+# => EORD-FLIFN = ‘ ‘.
 
-define view ZCV_P2M_BI_NOL_PRJ
-  as select distinct from zcv_p2m_bi_nol
-{
-  MaterialNumber,
-  Plant,
+N => 
+(EORD-FLIFN (SL Fixed vendor) = X OR EORD.FEBEL = X )  
+and
+Record not found in QINF with same vendor number
 
-  MaterialDescription,
-  MaterialGroup,
-  BulkIndicator,
-  MaterialType,
-  BackflushIndicator,
-  SchedulingProfile,
-  BatchManagement,
-  ProductCode,
-  CreatedOn,
-  BaseUnit,
-  MMStatus,
-  CrossPlantStatus,
-  ProcurementType,
-  MRPGroup,
-  MRPType,
-  MRPController,
-  PurchasingGroup,
-  PlannedDeliveryTime,
-  SpecialProcurementType,
-  GRProcessingTime,
-  MinimumLotSize,
-  FixedLotSize,
-  FixedLotSizeMax,
-  InHouseProductionTime,
-  StorageConditions,
-  QMInProcurement,
-  LotSizeProcedure,
-  IndividualCollectiveIndicator,
-  StrategyGroup,
-  QuotaArrangementUsage,
-  ConsumptionMode,
-  ForwardConsumptionPeriod,
-  BackwardConsumptionPeriod,
-  PlanningStrategyIndicator,
-  ForecastIndicator,
-  NetWeight,
-  WeightUnit,
-  SchedulingMarginKey,
-  AvailabilityCheck,
-  IssueStorageLocation,
-  ProductionStorageLocation,
-
-  FixedVendorID,
-  FixedVendor,
-  DeliveryBlock,
-  ProcurementTypeSourceList,
-
-  PirIndicatorFlag,
-  PirFixedVendorFlag,
-  PirFixedVendorError,
-  QualityFixedVendorFlag,
-
-  QInfoRecordVendor,
-  QInfoPlant,
-  QInfoDeletionFlag,
-
-  MaplPlant,
-  TaskListType,
-  MaplDeletionFlag,
-
-  MkalPlant,
-  MkalMaterial,
-  ProductionVersion,
-  ExplosionIndicator,
-  IssueStorageLocationPV,
-  ProductionVersionText,
-  BOMAlternative,
-  RoutingAlternative,
-
-  schgt_rule,
-  bulk_error,
-  backflush_check,
-  backflush_error,
-
-  ContractLeadTime,
-  CalculatedMRPType,
-
-  ManufacturerName,
-  ManufacturerPartNumber,
-  mardcratedon,
-  FixedVendorname
-}
+Message
+If Quality Fixed vendor= N or #, give error message – QIRFixedVend.
