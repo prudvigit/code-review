@@ -1,11 +1,11 @@
 @AbapCatalog.sqlViewName: 'ZV_EARLIEST_DEMAND'
 @AbapCatalog.compiler.compareFilter: true
-@AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'Earliest Demand Date by Material and Plant'
-
-define view ZC_EARLIEST_DEMAND_DATE
+@AbapCatalog.preserveKey: true
+@AccessControl.authorizationCheck: #CHECK
+@EndUserText.label: 'Earliest Demand'
+define view ZCV_P2M_EARLIEST_DEMAND 
   as select from (
-
+  
     select 
       vbbe.matnr            as Material,
       vbbe.werks            as Plant,
@@ -40,4 +40,5 @@ define view ZC_EARLIEST_DEMAND_DATE
 }
 group by
   Material,
-  Plant
+  Plant    
+}
