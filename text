@@ -1,8 +1,6 @@
-  case
-    when ( eord.flifn <> '' or eord.febel <> '' ) and eord.vrtyp = 'K' then
-      case 
-        when eord.flifn <> '' then ekpo_vendor.plifz 
-        else ekpo_agreement.plifz 
-      end
-    else 0
-  end as ContractLeadTime,
+By plant and material, get data for the below 3 tables:-
+SO Demand => VBBE-MBDAT [Mat.Avail.Date ]– >plant/material/date
+Dep Demand => RESB-BDTER [Reqmts date] -– >plant/material/date
+Ind Forecast => MDPB-PDATU [Finish date ]– >plant/material/date
+Union all date from the above table.
+Sort by date, get the first record date.
